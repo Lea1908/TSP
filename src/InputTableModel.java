@@ -19,12 +19,12 @@ public class InputTableModel extends DefaultTableModel {
 
     @Override
     public void addRow(Vector<?> rowData) {
-
-
-TownData tData = (TownData)rowData.get(0);
-
-
+        TownData tData = (TownData)rowData.get(0);
         add(tData);
+    }
+
+    public  boolean isCellEditable(int row, int col){
+        return false;
     }
 
     public void add(TownData rowData) {

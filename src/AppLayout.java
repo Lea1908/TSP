@@ -51,6 +51,7 @@ public class AppLayout extends JFrame{//inheriting JFrame
         JScrollPane scroll_input_table = new JScrollPane(input_table);
         // Initialize dropdown for deletion
         JComboBox delete_town = new JComboBox();
+        delete_town.addItem("");
         //use delete_town.additem(...); in a for loop to add items to the dropdown menu
         delete_town.addActionListener((new ActionListener() {
             @Override
@@ -70,6 +71,16 @@ public class AppLayout extends JFrame{//inheriting JFrame
         JTextField max_runtime_textfield = new JTextField("20");
         // Initialize unit label for maximal runtime
         JLabel unit_max_runtime = new JLabel("Seconds");
+        // Initialize start town dropdown menu
+        JComboBox start_town = new JComboBox();
+        start_town.addItem("");
+        // Initialize start town label
+        JLabel start_town_label = new JLabel("Select town to start: ");
+        // Initialize end town dropdown menu
+        JComboBox end_town = new JComboBox();
+        end_town.addItem("");
+        // Initialize end town label
+        JLabel end_town_label = new JLabel(" Select town to end: ");
 
 
 
@@ -111,6 +122,10 @@ public class AppLayout extends JFrame{//inheriting JFrame
         addComponent(container, grid_bag_layout, max_runtime_label,     0, 7, 1, 1, 0.0, 0.0);
         addComponent(container, grid_bag_layout, max_runtime_textfield, 1, 7, 1, 1, 0.0, 0.0);
         addComponent(container, grid_bag_layout, unit_max_runtime,      2, 7, 1, 1, 0.0, 0.0);
+        addComponent(container, grid_bag_layout, start_town_label,      0, 8, 1, 1, 0.0, 0.0);
+        addComponent(container, grid_bag_layout, start_town,            1, 8, 1, 1, 0.0, 0.0);
+        addComponent(container, grid_bag_layout, end_town_label,        2, 8, 1, 1, 0.0, 0.0);
+        addComponent(container, grid_bag_layout, end_town,              3, 8, 1, 1, 0.0, 0.0);
 
 
 
@@ -119,7 +134,8 @@ public class AppLayout extends JFrame{//inheriting JFrame
         addComponent(container, grid_bag_layout, solutions,             6, 1, 6, 1, 6., 0.0);
 
         // Add listener
-        add_to_list.addActionListener(new ButtonListener(input_table));
+        add_to_list.addActionListener(new ButtonListener(input_table, delete_town, start_town, end_town));
+        delete_town_button.addActionListener(new ButtonListener(input_table, delete_town, start_town, end_town));
 
         // Define basic layout for the main window of the app
         setSize(1000, 800);  // define the size of the window
@@ -197,16 +213,22 @@ class InputTableModel_old extends AbstractTableModel{
 
 class ButtonListener implements ActionListener{
     JTable input_table;
-    ButtonListener(JTable table){
+    JComboBox delete_town;
+    JComboBox start_town;
+    JComboBox end_town;
+    ButtonListener(JTable table, JComboBox dropdown1, JComboBox dropdown2, JComboBox dropdown3){
         input_table = table;
-        System.out.println(input_table.getModel());
+        delete_town = dropdown1;
+        start_town = dropdown2;
+        end_town = dropdown3;
     }
     public void actionPerformed(ActionEvent e){
         String command = e.getActionCommand();
         if(command.equals("Add to list")){
             addRowData();
-
-
+        }
+        else if(command.equals("Delete selected town")){
+            deleteTownFromTable();
         }
     }
 
@@ -216,26 +238,84 @@ class ButtonListener implements ActionListener{
         System.out.println(t);
 
         // Collect Data
-        String town = AppLayout.town_textfield.getText();
-        String x = AppLayout.x_textfield.getText();
-        String y = AppLayout.y_textfield.getText();
+        String town_cand = AppLayout.town_textfield.getText();
+        String x_cand = AppLayout.x_textfield.getText();
+        String y_cand = AppLayout.y_textfield.getText();
 
-        if(town.length() != 0 && x.length() != 0 && y.length() != 0){
+        // Only if all three dataslots are given we are considering the input as a new row entry for the list
+        if(town_cand.length() != 0 && x_cand.length() != 0 && y_cand.length() != 0){
+            // get the model of our table so that we can use our 'own' methods
             DefaultTableModel model = (DefaultTableModel) input_table.getModel();
+            // get the current data of the table stored in a vector
             Vector data_vec = model.getDataVector();
-            Vector data = new Vector(Arrays.asList(new TownData(town, x, y)));
+            // create a vector with the row data we would like to add to the table
+            Vector data = new Vector(Arrays.asList(new TownData(town_cand, x_cand, y_cand)));
+
+            // initialize a flag which tells us if the new row data will be added or not
+            boolean add_row_to_list = true;
+
+            // iterate through the vector of the current data to check if the input the user has made is valid
             for(Object obj : data_vec){
-
+                // get the next rowdata
                 Vector vec =  (Vector)obj;
-                String td = (String)vec.get(0);
-                System.out.println(td);
 
+                //get the data contained in the row
+                String town = (String)vec.get(0);
+                String x = (String)vec.get(1);
+                String y = (String)vec.get(2);
+
+                if (town_cand.equals(town) || (x_cand.equals(x) && y_cand.equals(y))){
+                    add_row_to_list = false;
+                    //TODO construct a warning-pop-up window to tell the user why (s)he could not add his/her input
+                    break;
+                }
             }
-            model.addRow(data);
+
+            if(add_row_to_list){
+                // finally add the rowdata candidate to the table
+                model.addRow(data);
+                // We need to update the dropdown menu for the deletion of an entry
+                delete_town.addItem(town_cand);
+                start_town.addItem(town_cand);
+                end_town.addItem(town_cand);
+            }
 
 
         }
     }
+
+    private void deleteTownFromTable(){
+        Object obj = delete_town.getSelectedItem();
+        String town_to_delete = (String) obj;
+
+        if(!town_to_delete.equals("")){
+            // remove the town from the dropdown menu
+            delete_town.removeItem(obj);
+            start_town.removeItem(obj);
+            end_town.removeItem(obj);
+
+            // remove the town from the table
+            // get the model of our table so that we can use our 'own' methods
+            DefaultTableModel model = (DefaultTableModel) input_table.getModel();
+            // get the current data of the table stored in a vector
+            Vector data_vec = model.getDataVector();
+            int i = 0;
+            for(Object object : data_vec){
+                //get next rowdata
+                Vector row_data = (Vector) object;
+
+                // get the town contained in the row
+                String town = (String) row_data.get(0);
+
+                if(town.equals(town_to_delete)){
+                    model.removeRow(i);
+                    break;
+                }
+                i++;
+            }
+        }
+        }
+
 
 }
 
