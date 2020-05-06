@@ -1,12 +1,12 @@
 import javax.swing.*;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AppLayout extends JFrame{//inheriting JFrame
     // Initialize Town input field
@@ -62,7 +62,7 @@ public class AppLayout extends JFrame{//inheriting JFrame
         // Initialize delete selected town button
         JButton delete_town_button = new JButton("Delete selected town");
 
-        //Initialize Optional input header
+        // Initialize Optional input header
         JLabel optional_input = new JLabel("Optional input");
         optional_input.setFont(new Font("Serif", Font.BOLD, 18));
         // Initialize maximal runtime label
@@ -82,7 +82,47 @@ public class AppLayout extends JFrame{//inheriting JFrame
         // Initialize end town label
         JLabel end_town_label = new JLabel(" Select town to end: ");
 
+        // Initialize Subsequences
+        JLabel supseq = new JLabel("Define a subsequence of towns");
+        supseq.setFont(new Font("Serif", Font.BOLD, 18));
+        //Initialize label to add town...
+        JLabel add_town_to = new JLabel("Add the town ");
+        // Initialize dropdown menu of the available towns
+        JComboBox town_to_add_to_subseq = new JComboBox();
+        // Initialize label for subseq
+        JLabel to_supseq = new JLabel("to the subsequence");
+        // Initialize dropdown for subseq
+        JComboBox subseq_dropdown = new JComboBox();
+        subseq_dropdown.addItem("Subsequence 1");
+        // Initialize do button
+        JButton do_add_town = new JButton("Do");
 
+        // Initialize Subsequence table
+        List<String> test = new ArrayList<>(5);
+        test.add("Essen");
+        test.add("Oberhausen");
+        test.add("Köstendorf");
+        test.add("Dortmund");
+        test.add("Bochum");
+
+        //ComboboxTableCellEditor editor = new ComboboxTableCellEditor(test);
+        DefaultTableModel model = new DefaultTableModel(new Object[]{"Subsequence 1"}, 0);
+        JTable subseq_table = new JTable(model);
+        //subseq_table.setModel(new SubSeqTableModel());
+        //DefaultTableModel model = (DefaultTableModel) subseq_table.getModel();
+        //model.setNumRows(5);
+        //subseq_table.getColumnModel().getColumn(0).setCellEditor(editor);
+        subseq_table.setShowGrid(true);
+        subseq_table.setGridColor(Color.GRAY);
+        JScrollPane scroll_subseq_table = new JScrollPane(subseq_table);
+
+        // Initialize add new subsequence
+        JButton add_new_subsequence = new JButton("Add another subsequence");
+        // Initialize dropdown delete subseq
+        JComboBox delete_subseq = new JComboBox();
+        delete_subseq.addItem("Subsequence 1");
+        // Initialize button delete subseq
+        JButton delete_subseq_button = new JButton("Delete selected subsequence");
 
 
         //Initialize header Results
@@ -109,23 +149,36 @@ public class AppLayout extends JFrame{//inheriting JFrame
         // City Inputs
         addComponent(container, grid_bag_layout, city_input,            0, 1, 1, 1, 0.0, 0.0);
         addComponent(container, grid_bag_layout, town_label,            0, 2, 1, 1, 0.0, 0.0);
-        addComponent(container, grid_bag_layout, town_textfield,        1, 2, 1, 1, 1.0, 0.0);
+        addComponent(container, grid_bag_layout, town_textfield,        1, 2, 1, 1, 0.75, 0.0);
         addComponent(container, grid_bag_layout, x_label,               2, 2, 1, 1, 0.0, 0.0);
-        addComponent(container, grid_bag_layout, x_textfield,           3, 2, 1, 1, 1.0, 0.0);
+        addComponent(container, grid_bag_layout, x_textfield,           3, 2, 1, 1, 0.75, 0.0);
         addComponent(container, grid_bag_layout, y_label,               4, 2, 1, 1, 0.0, 0.0);
-        addComponent(container, grid_bag_layout, y_textfield,           5, 2, 1, 1, 1.0, 0.0);
+        addComponent(container, grid_bag_layout, y_textfield,           5, 2, 1, 1, 0.75, 0.0);
         addComponent(container, grid_bag_layout, add_to_list,           5, 3, 1, 1, 1.0, 0.0);
-        addComponent(container, grid_bag_layout, scroll_input_table,    0, 4, 6, 1, 0.0, 0.0);
-        addComponent(container, grid_bag_layout, delete_town,           0, 5, 3, 1, 0.0, 0.0);
-        addComponent(container, grid_bag_layout, delete_town_button,    3, 5, 3, 1, 0.0, 0.0);
-        addComponent(container, grid_bag_layout, optional_input,        0, 6, 1, 1, 0.0, 0.0);
-        addComponent(container, grid_bag_layout, max_runtime_label,     0, 7, 1, 1, 0.0, 0.0);
-        addComponent(container, grid_bag_layout, max_runtime_textfield, 1, 7, 1, 1, 0.0, 0.0);
-        addComponent(container, grid_bag_layout, unit_max_runtime,      2, 7, 1, 1, 0.0, 0.0);
-        addComponent(container, grid_bag_layout, start_town_label,      0, 8, 1, 1, 0.0, 0.0);
-        addComponent(container, grid_bag_layout, start_town,            1, 8, 1, 1, 0.0, 0.0);
-        addComponent(container, grid_bag_layout, end_town_label,        2, 8, 1, 1, 0.0, 0.0);
-        addComponent(container, grid_bag_layout, end_town,              3, 8, 1, 1, 0.0, 0.0);
+        addComponent(container, grid_bag_layout, scroll_input_table,    0, 4, 6, 2, 0.0, 1.0);
+        addComponent(container, grid_bag_layout, delete_town,           0, 6, 3, 1, 0.0, 0.0);
+        addComponent(container, grid_bag_layout, delete_town_button,    3, 6, 3, 1, 0.0, 0.0);
+
+        addComponent(container, grid_bag_layout, optional_input,        0, 7, 1, 1, 0.0, 0.0);
+        addComponent(container, grid_bag_layout, max_runtime_label,     0, 8, 1, 1, 0.0, 0.0);
+        addComponent(container, grid_bag_layout, max_runtime_textfield, 1, 8, 1, 1, 0.0, 0.0);
+        addComponent(container, grid_bag_layout, unit_max_runtime,      2, 8, 1, 1, 0.0, 0.0);
+        addComponent(container, grid_bag_layout, start_town_label,      0, 9, 1, 1, 0.0, 0.0);
+        addComponent(container, grid_bag_layout, start_town,            1, 9, 1, 1, 0.0, 0.0);
+        addComponent(container, grid_bag_layout, end_town_label,        2, 9, 1, 1, 0.0, 0.0);
+        addComponent(container, grid_bag_layout, end_town,              3, 9, 1, 1, 0.0, 0.0);
+
+        addComponent(container, grid_bag_layout, supseq,                0, 10, 1, 1, 0.0, 0.0);
+        addComponent(container, grid_bag_layout, add_town_to,           0, 11, 1, 1, 0.0, 0.0);
+        addComponent(container, grid_bag_layout, town_to_add_to_subseq, 1, 11, 1, 1, 0.0, 0.0);
+        addComponent(container, grid_bag_layout, to_supseq,             2, 11, 1, 1, 0.0, 0.0);
+        addComponent(container, grid_bag_layout, subseq_dropdown,       3, 11, 1, 1, 0.0, 0.0);
+        addComponent(container, grid_bag_layout, do_add_town,           4, 11, 1, 1, 0.0, 0.0);
+        addComponent(container, grid_bag_layout, scroll_subseq_table,   0, 12, 6, 2, 0.0, 1.0);
+        addComponent(container, grid_bag_layout, add_new_subsequence,   0, 14, 1, 1, 0.0, 0.0);
+        addComponent(container, grid_bag_layout, delete_subseq,         0, 15, 1, 1, 0.0, 0.0);
+        addComponent(container, grid_bag_layout, delete_subseq_button,  1, 15, 1, 1, 0.0, 0.0);
+
 
 
 
@@ -133,9 +186,12 @@ public class AppLayout extends JFrame{//inheriting JFrame
         addComponent(container, grid_bag_layout, results,               6, 0, 6, 1, 6., 0.0);
         addComponent(container, grid_bag_layout, solutions,             6, 1, 6, 1, 6., 0.0);
 
-        // Add listener
-        add_to_list.addActionListener(new ButtonListener(input_table, delete_town, start_town, end_town));
-        delete_town_button.addActionListener(new ButtonListener(input_table, delete_town, start_town, end_town));
+        // Add listener Input
+        add_to_list.addActionListener(new ButtonListenerInput(input_table, delete_town, start_town, end_town, subseq_table));
+        delete_town_button.addActionListener(new ButtonListenerInput(input_table, delete_town, start_town, end_town, subseq_table));
+
+        // Add listener Subsequence
+        do_add_town.addActionListener(new ButtonListenerSubSeq(subseq_table, town_to_add_to_subseq, subseq_dropdown));
 
         // Define basic layout for the main window of the app
         setSize(1000, 800);  // define the size of the window
@@ -166,62 +222,25 @@ public class AppLayout extends JFrame{//inheriting JFrame
 
     public static void main(String[] args) {
         new AppLayout();
-    }}
-
-
-class InputTableModel_old extends AbstractTableModel{
-    ArrayList<TownData> row_data = new ArrayList<TownData>();
-    String[] column_names = {"Town", "x-coord.", "y-coord."};
-
-    public InputTableModel_old(){
-        row_data.add(new TownData("Essen", "3", "4"));
     }
-
-    public  int getRowCount(){
-        return row_data.size();
-    }
-
-    public int getColumnCount(){
-        return column_names.length;
-    }
-
-    public String getColumnName(int col){
-        return column_names[col];
-    }
-
-    public Object getValueAt(int row, int col){
-        TownData townObj = row_data.get(row);
-        switch(col){
-            case 0: return townObj.getName();
-            case 1: return townObj.getX();
-            case 2: return townObj.getY();
-            default: return null;
-        }
-    }
-
-    public  boolean isCellEditable(int row, int col){
-        return false;
-    }
-
-
-    public void addData(TownData townObj){
-        row_data.add(townObj);
-        fireTableRowsInserted(row_data.size() - 1, row_data.size() - 1);
-    }
-
 }
 
-class ButtonListener implements ActionListener{
+
+class ButtonListenerInput implements ActionListener{
     JTable input_table;
     JComboBox delete_town;
     JComboBox start_town;
     JComboBox end_town;
-    ButtonListener(JTable table, JComboBox dropdown1, JComboBox dropdown2, JComboBox dropdown3){
+    JTable subseq_table;
+
+    ButtonListenerInput(JTable table, JComboBox dropdown1, JComboBox dropdown2, JComboBox dropdown3, JTable table2){
         input_table = table;
         delete_town = dropdown1;
         start_town = dropdown2;
         end_town = dropdown3;
+        subseq_table = table2;
     }
+
     public void actionPerformed(ActionEvent e){
         String command = e.getActionCommand();
         if(command.equals("Add to list")){
@@ -254,30 +273,44 @@ class ButtonListener implements ActionListener{
             // initialize a flag which tells us if the new row data will be added or not
             boolean add_row_to_list = true;
 
+            // initialize a list with the towns for the subsequence table which is filled in the loop below
+            List<String> towns = new ArrayList<>(data_vec.size() + 1);
+
             // iterate through the vector of the current data to check if the input the user has made is valid
             for(Object obj : data_vec){
                 // get the next rowdata
                 Vector vec =  (Vector)obj;
 
-                //get the data contained in the row
+                // get the data contained in the row
                 String town = (String)vec.get(0);
                 String x = (String)vec.get(1);
                 String y = (String)vec.get(2);
 
+                // fill the town list
+                towns.add(town);
+
                 if (town_cand.equals(town) || (x_cand.equals(x) && y_cand.equals(y))){
                     add_row_to_list = false;
                     //TODO construct a warning-pop-up window to tell the user why (s)he could not add his/her input
-                    break;
                 }
             }
 
             if(add_row_to_list){
                 // finally add the rowdata candidate to the table
                 model.addRow(data);
+                towns.add(town_cand);
                 // We need to update the dropdown menu for the deletion of an entry
                 delete_town.addItem(town_cand);
                 start_town.addItem(town_cand);
                 end_town.addItem(town_cand);
+
+                DefaultTableModel model_subseq = (DefaultTableModel) subseq_table.getModel();
+                model_subseq.setNumRows(data_vec.size());
+                int column_num = model_subseq.getColumnCount();
+                for(int i=0; i<column_num; i++){
+                    ComboboxTableCellEditor editor = new ComboboxTableCellEditor(towns);
+                    subseq_table.getColumnModel().getColumn(i).setCellEditor(editor);
+                }
             }
 
 
@@ -317,6 +350,36 @@ class ButtonListener implements ActionListener{
         }
 
 
+}
+
+
+class ButtonListenerSubSeq implements ActionListener{
+    JTable subseq_table;
+    JComboBox town_dropdown;
+    JComboBox subseq_dropdown;
+    ButtonListenerSubSeq(JTable table, JComboBox dropdown1, JComboBox dropdown2){
+        subseq_table = table;
+        town_dropdown = dropdown1;
+        subseq_dropdown = dropdown2;
+    }
+
+    public void actionPerformed(ActionEvent e){
+        String command = e.getActionCommand();
+        if(command.equals("Do")){
+            addTownToSeq();
+        }
+    }
+
+    private void addTownToSeq(){
+        Object obj_town = town_dropdown.getSelectedItem();
+        String town_to_add = (String) obj_town;
+
+        Object obj_subseq = subseq_dropdown.getSelectedItem();
+        String add_to_subseq = (String) obj_subseq;
+
+        // get the model of our table so that we can use our 'own' methods
+        DefaultTableModel model = (DefaultTableModel) subseq_table.getModel();
+    }
 }
 
 class TownData{
