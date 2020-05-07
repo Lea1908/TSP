@@ -1,3 +1,5 @@
+import EntityManager.CityManager;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -289,6 +291,12 @@ class ButtonListenerInput implements ActionListener{
                 // fill the town list
                 towns.add(town);
 
+                /*// insert town in db
+                Double x_d = Double.parseDouble(x);
+                Double y_d = Double.parseDouble(y);
+                CityManager cityManager = new CityManager();
+                cityManager.create(town, x_d, y_d);*/
+                
                 if (town_cand.equals(town) || (x_cand.equals(x) && y_cand.equals(y))){
                     add_row_to_list = false;
                     //TODO construct a warning-pop-up window to tell the user why (s)he could not add his/her input
