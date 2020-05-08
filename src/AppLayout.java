@@ -1,5 +1,6 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -85,35 +86,13 @@ public class AppLayout extends JFrame{//inheriting JFrame
         // Initialize Subsequences
         JLabel supseq = new JLabel("Define a subsequence of towns");
         supseq.setFont(new Font("Serif", Font.BOLD, 18));
-        //Initialize label to add town...
-        JLabel add_town_to = new JLabel("Add the town ");
-        // Initialize dropdown menu of the available towns
-        JComboBox town_to_add_to_subseq = new JComboBox();
-        // Initialize label for subseq
-        JLabel to_supseq = new JLabel("to the subsequence");
-        // Initialize dropdown for subseq
-        JComboBox subseq_dropdown = new JComboBox();
-        subseq_dropdown.addItem("Subsequence 1");
-        // Initialize do button
-        JButton do_add_town = new JButton("Do");
 
         // Initialize Subsequence table
-        List<String> test = new ArrayList<>(5);
-        test.add("Essen");
-        test.add("Oberhausen");
-        test.add("Köstendorf");
-        test.add("Dortmund");
-        test.add("Bochum");
-
-        //ComboboxTableCellEditor editor = new ComboboxTableCellEditor(test);
         DefaultTableModel model = new DefaultTableModel(new Object[]{"Subsequence 1"}, 0);
-        JTable subseq_table = new JTable(model);
-        //subseq_table.setModel(new SubSeqTableModel());
-        //DefaultTableModel model = (DefaultTableModel) subseq_table.getModel();
-        //model.setNumRows(5);
-        //subseq_table.getColumnModel().getColumn(0).setCellEditor(editor);
+        JTable subseq_table = new JTable(new SubSeqTableModel());
         subseq_table.setShowGrid(true);
         subseq_table.setGridColor(Color.GRAY);
+        //subseq_table.setAutoCreateColumnsFromModel(false);
         JScrollPane scroll_subseq_table = new JScrollPane(subseq_table);
 
         // Initialize add new subsequence
@@ -123,6 +102,11 @@ public class AppLayout extends JFrame{//inheriting JFrame
         delete_subseq.addItem("Subsequence 1");
         // Initialize button delete subseq
         JButton delete_subseq_button = new JButton("Delete selected subsequence");
+
+        // Initialize the start calculation button
+        JButton start_clac = new JButton("Start calculation");
+        // Initialize the save button
+        JButton save = new JButton("Save results");
 
 
         //Initialize header Results
@@ -141,10 +125,21 @@ public class AppLayout extends JFrame{//inheriting JFrame
                 }
             }
         });
+        // Init list for result print out
+        JList<String> result_print = new JList<>();
+        JScrollPane scroll_result_print = new JScrollPane(result_print);
+
+        // Initialize local statistic header
+        JLabel local_statistic = new JLabel("Local statistic");
+        local_statistic.setFont(new Font("Serif", Font.BOLD, 18));
+
+        // Initialize global statistic header
+        JLabel global_statistic = new JLabel("Global statistics");
+        global_statistic.setFont(new Font("Serif", Font.BOLD, 18));
 
 
         addComponent(container, grid_bag_layout, clear_tsp, 0, 0, 3, 1, 0.0, 0.0);
-        addComponent(container, grid_bag_layout, load_tsp, 3, 0, 3, 1, 0.0, 0.0);
+        addComponent(container, grid_bag_layout, load_tsp, 3, 0, 3, 1, 1.0, 0.0);
 
         // City Inputs
         addComponent(container, grid_bag_layout, city_input,            0, 1, 1, 1, 0.0, 0.0);
@@ -169,32 +164,36 @@ public class AppLayout extends JFrame{//inheriting JFrame
         addComponent(container, grid_bag_layout, end_town,              3, 9, 1, 1, 0.0, 0.0);
 
         addComponent(container, grid_bag_layout, supseq,                0, 10, 1, 1, 0.0, 0.0);
-        addComponent(container, grid_bag_layout, add_town_to,           0, 11, 1, 1, 0.0, 0.0);
-        addComponent(container, grid_bag_layout, town_to_add_to_subseq, 1, 11, 1, 1, 0.0, 0.0);
-        addComponent(container, grid_bag_layout, to_supseq,             2, 11, 1, 1, 0.0, 0.0);
-        addComponent(container, grid_bag_layout, subseq_dropdown,       3, 11, 1, 1, 0.0, 0.0);
-        addComponent(container, grid_bag_layout, do_add_town,           4, 11, 1, 1, 0.0, 0.0);
         addComponent(container, grid_bag_layout, scroll_subseq_table,   0, 12, 6, 2, 0.0, 1.0);
         addComponent(container, grid_bag_layout, add_new_subsequence,   0, 14, 1, 1, 0.0, 0.0);
-        addComponent(container, grid_bag_layout, delete_subseq,         0, 15, 1, 1, 0.0, 0.0);
-        addComponent(container, grid_bag_layout, delete_subseq_button,  1, 15, 1, 1, 0.0, 0.0);
+        addComponent(container, grid_bag_layout, delete_subseq,         1, 14, 1, 1, 0.0, 0.0);
+        addComponent(container, grid_bag_layout, delete_subseq_button,  2, 14, 1, 1, 0.0, 0.0);
 
-
-
+        addComponent(container, grid_bag_layout, start_clac,            6, 15, 3, 1, 0.0, 0.0);
+        addComponent(container, grid_bag_layout, save,                  9, 15, 3, 1, 1.0, 0.0);
 
         // Results
         addComponent(container, grid_bag_layout, results,               6, 0, 6, 1, 6., 0.0);
         addComponent(container, grid_bag_layout, solutions,             6, 1, 6, 1, 6., 0.0);
+        addComponent(container, grid_bag_layout, scroll_result_print,   6, 2, 6, 2, 6., 0.0);
+
+        addComponent(container, grid_bag_layout, local_statistic,       6, 4, 6, 1, 6., 0.0);
+        addComponent(container, grid_bag_layout, global_statistic,      6, 7, 6, 1, 6., 0.0);
 
         // Add listener Input
         add_to_list.addActionListener(new ButtonListenerInput(input_table, delete_town, start_town, end_town, subseq_table));
         delete_town_button.addActionListener(new ButtonListenerInput(input_table, delete_town, start_town, end_town, subseq_table));
 
         // Add listener Subsequence
-        add_new_subsequence.addActionListener(new ButtonListenerSubSeq(subseq_table, input_table));
+        add_new_subsequence.addActionListener(new ButtonListenerSubSeq(subseq_table, input_table, delete_subseq));
+        delete_subseq_button.addActionListener(new ButtonListenerSubSeq(subseq_table, input_table, delete_subseq));
+
+        // Add listener for Load TSP and Save TSP
+        load_tsp.addActionListener(new ButtonListenerLoadSave());
+        save.addActionListener(new ButtonListenerLoadSave());
 
         // Define basic layout for the main window of the app
-        setSize(1000, 800);  // define the size of the window
+        setSize(1200, 800);  // define the size of the window
         setVisible(true);  // we need this to be able to see the application
         setLocation(0,0);  // this moves the window to the position (0, 0)
 
@@ -327,12 +326,17 @@ class ButtonListenerInput implements ActionListener{
             start_town.removeItem(obj);
             end_town.removeItem(obj);
 
+
             // remove the town from the table
             // get the model of our table so that we can use our 'own' methods
             DefaultTableModel model = (DefaultTableModel) input_table.getModel();
             // get the current data of the table stored in a vector
             Vector data_vec = model.getDataVector();
             int i = 0;
+
+            // initialize a list with the towns for the subsequence table which is filled in the loop below
+            List<String> towns = new ArrayList<>(data_vec.size());
+
             for(Object object : data_vec){
                 //get next rowdata
                 Vector row_data = (Vector) object;
@@ -342,37 +346,56 @@ class ButtonListenerInput implements ActionListener{
 
                 if(town.equals(town_to_delete)){
                     model.removeRow(i);
-                    break;
+                }
+                else{
+                    towns.add(town);
                 }
                 i++;
             }
-        }
+            // FIXME Deletion in subseq klappt noch nicht ganz
+            DefaultTableModel model_subseq = (DefaultTableModel) subseq_table.getModel();
+            model_subseq.setNumRows(data_vec.size());
+            int column_num = model_subseq.getColumnCount();
+            for(int j=0; j<column_num; j++){
+                ComboboxTableCellEditor editor = new ComboboxTableCellEditor(towns);
+                subseq_table.getColumnModel().getColumn(j).setCellEditor(editor);
+            }
         }
 
 
+    }
 }
 
 
 class ButtonListenerSubSeq implements ActionListener{
     JTable subseq_table;
     JTable input_table;
-    ButtonListenerSubSeq(JTable table1, JTable table2){
+    JComboBox delete_subseq;
+    ButtonListenerSubSeq(JTable table1, JTable table2, JComboBox dropdown){
         subseq_table = table1;
         input_table = table2;
+        delete_subseq = dropdown;
     }
 
     public void actionPerformed(ActionEvent e){
         String command = e.getActionCommand();
         if(command.equals("Add another subsequence")){
-            add_subseq();
+            add_subseq_action();
+        }
+        else if(command.equals("Delete selected subsequence")){
+            delete_subseq_action();
         }
     }
 
-    private void add_subseq(){
+    private void add_subseq_action(){
         // get the model of our table so that we can use our 'own' methods
         DefaultTableModel model = (DefaultTableModel) subseq_table.getModel();
         int column_num = model.getColumnCount();
-        model.addColumn("Subsequence ".concat(String.valueOf(column_num + 1)));
+        String subseq_x = "Subsequence ".concat(String.valueOf(column_num + 1));
+        // add a new column for the new Subsequence
+        model.addColumn(subseq_x);
+        // add the new subsequence to the dropdown for deletion of subsequences
+        delete_subseq.addItem(subseq_x);
         // get the model of our table so that we can use our 'own' methods
         DefaultTableModel model_input = (DefaultTableModel) input_table.getModel();
         // get the current data of the table stored in a vector
@@ -391,6 +414,48 @@ class ButtonListenerSubSeq implements ActionListener{
         }
 
 
+
+    }
+
+    private void delete_subseq_action(){
+        // get the model of our table so that we can use our 'own' methods
+        DefaultTableModel model = (DefaultTableModel) subseq_table.getModel();
+        int column_to_delete = delete_subseq.getSelectedIndex();
+        model.removeRow(column_to_delete);
+        Vector<Object> col_names = new Vector<>();
+        delete_subseq.removeAllItems();
+        for(int i=0; i < subseq_table.getColumnCount(); i++){
+            String seq_name = "Subsequence ".concat(String.valueOf(i + 1));
+            col_names.add(seq_name);
+            delete_subseq.addItem(seq_name);
+        }
+        model.setColumnIdentifiers(col_names);
+    }
+}
+
+class ButtonListenerLoadSave implements ActionListener{
+    ButtonListenerLoadSave(){
+
+    }
+
+    public void actionPerformed(ActionEvent e){
+        String command = e.getActionCommand();
+        if(command.equals("Load TSP")){
+            load_tsp();
+        }
+        else if(command.equals("Save results")){
+            save_tsp();
+        }
+    }
+
+    private void load_tsp(){
+        // TODO @Sandra hier muesstest du ein pop-up window erstellen mit einem dropdown menue der bereits gespeicherten
+        // TODO TSPs und einen Button fuer die Bestaetigung oder was in der art halt...
+    }
+
+    private void save_tsp(){
+        // TODO @Sandra hier bitte nochmal das gleiche nur mit einem Eingabefeld fuer den Namen unter welchem das ganze
+        // TODO dann gespeichert werden soll...
     }
 }
 
@@ -430,3 +495,4 @@ class TownData{
         this.y = y;
     }
 }
+
