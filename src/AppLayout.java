@@ -193,7 +193,7 @@ public class AppLayout extends JFrame{//inheriting JFrame
         delete_town_button.addActionListener(new ButtonListenerInput(input_table, delete_town, start_town, end_town, subseq_table));
 
         // Add listener Subsequence
-        do_add_town.addActionListener(new ButtonListenerSubSeq(subseq_table, town_to_add_to_subseq, subseq_dropdown));
+        add_new_subsequence.addActionListener(new ButtonListenerSubSeq(subseq_table, input_table));
 
         // Define basic layout for the main window of the app
         setSize(1000, 800);  // define the size of the window
@@ -363,30 +363,42 @@ class ButtonListenerInput implements ActionListener{
 
 class ButtonListenerSubSeq implements ActionListener{
     JTable subseq_table;
-    JComboBox town_dropdown;
-    JComboBox subseq_dropdown;
-    ButtonListenerSubSeq(JTable table, JComboBox dropdown1, JComboBox dropdown2){
-        subseq_table = table;
-        town_dropdown = dropdown1;
-        subseq_dropdown = dropdown2;
+    JTable input_table;
+    ButtonListenerSubSeq(JTable table1, JTable table2){
+        subseq_table = table1;
+        input_table = table2;
     }
 
     public void actionPerformed(ActionEvent e){
         String command = e.getActionCommand();
-        if(command.equals("Do")){
-            addTownToSeq();
+        if(command.equals("Add another subsequence")){
+            add_subseq();
         }
     }
 
-    private void addTownToSeq(){
-        Object obj_town = town_dropdown.getSelectedItem();
-        String town_to_add = (String) obj_town;
-
-        Object obj_subseq = subseq_dropdown.getSelectedItem();
-        String add_to_subseq = (String) obj_subseq;
-
+    private void add_subseq(){
         // get the model of our table so that we can use our 'own' methods
         DefaultTableModel model = (DefaultTableModel) subseq_table.getModel();
+        int column_num = model.getColumnCount();
+        model.addColumn("Subsequence ".concat(String.valueOf(column_num + 1)));
+        // get the model of our table so that we can use our 'own' methods
+        DefaultTableModel model_input = (DefaultTableModel) input_table.getModel();
+        // get the current data of the table stored in a vector
+        Vector data_vec = model_input.getDataVector();
+        // initialize a list with the towns for the subsequence table which is filled in the loop below
+        List<String> towns = new ArrayList<>(data_vec.size());
+        if(data_vec.size() != 0){
+            for(Object obj: data_vec){
+                String town = (String)((Vector)obj).get(0);
+                towns.add(town);
+            }
+            for(int i=0; i < subseq_table.getColumnCount(); i++) {
+                ComboboxTableCellEditor editor = new ComboboxTableCellEditor(towns);
+                subseq_table.getColumnModel().getColumn(i).setCellEditor(editor);
+            }
+        }
+
+
     }
 }
 
