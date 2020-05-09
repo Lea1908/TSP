@@ -10,7 +10,12 @@ public class CityEntity {
     private double xCoordinate;
     private double yCoordinate;
     private String name;
-
+    public CityEntity() { }
+    public CityEntity(String name, double xCoordinate, double yCoordinate) {
+        setName(name);
+        setxCoordinate(xCoordinate);
+        setyCoordinate(yCoordinate);
+    }
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy=GenerationType.AUTO)

@@ -12,6 +12,7 @@ public class TspEntity implements Serializable {
     private int startCityId;
     private int endCityId;
     private int subsequenceId;
+    private String name;
 
     @Id
     @Column(name = "id")
@@ -61,6 +62,15 @@ public class TspEntity implements Serializable {
         this.subsequenceId = id;
     }
 
+    @Basic
+    @Column(name = "name")
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     @Override
     public boolean equals(Object o) {
