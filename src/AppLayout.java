@@ -1,4 +1,5 @@
 import EntityManager.CityManager;
+import tsp.model.CityEntity;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -18,7 +19,10 @@ public class AppLayout extends JFrame{//inheriting JFrame
     static JTextField x_textfield = new JTextField();
     // Initialize y input field
     static JTextField y_textfield = new JTextField();
-
+    // Initialize town list
+    static List<CityEntity> cities = new ArrayList<>();
+    // Initialize tsp name
+    static String tsp_name = "";
 
     // Constructor
     AppLayout(){
@@ -276,6 +280,7 @@ class ButtonListenerInput implements ActionListener{
 
             // initialize a list with the towns for the subsequence table which is filled in the loop below
             List<String> towns = new ArrayList<>(data_vec.size() + 1);
+            List<CityEntity> cities = new ArrayList<>(data_vec.size() + 1);
 
             // iterate through the vector of the current data to check if the input the user has made is valid
             for(Object obj : data_vec){
@@ -290,11 +295,10 @@ class ButtonListenerInput implements ActionListener{
                 // fill the town list
                 towns.add(town);
 
-                /*// insert town in db
+                // insert town in city list
                 Double x_d = Double.parseDouble(x);
                 Double y_d = Double.parseDouble(y);
-                CityManager cityManager = new CityManager();
-                cityManager.create(town, x_d, y_d);*/
+                cities.add(new CityEntity(town, x_d, y_d));
                 
                 if (town_cand.equals(town) || (x_cand.equals(x) && y_cand.equals(y))){
                     add_row_to_list = false;
@@ -320,7 +324,7 @@ class ButtonListenerInput implements ActionListener{
                 }
             }
 
-
+            AppLayout.cities = cities;
         }
     }
 
@@ -458,12 +462,76 @@ class ButtonListenerLoadSave implements ActionListener{
 
     private void load_tsp(){
         // TODO @Sandra hier muesstest du ein pop-up window erstellen mit einem dropdown menue der bereits gespeicherten
-        // TODO TSPs und einen Button fuer die Bestaetigung oder was in der art halt...
+        // Create JFrame for load dialog
+        JFrame loadFrame = DialogHelper.createFrame(600, 600, "Load TSP");
+
+        // TODO get from db
+        // create dropdown menu
+        String[] tsps = { "TSP 1","TSP 2", "TSP 3","TSP 4","TSP 5","TSP 6"};
+        final JComboBox<String> cb = new JComboBox<String>(tsps);
+        cb.setVisible(true);
+        // create label for dropdown
+        JLabel label = new JLabel();
+        label.setText("Load TSP:");
+
+        // create save button
+        JButton button = new JButton("Ok");
+        button.setBounds(100,100,140, 40);
+        // Submit button onclick listener
+        button.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                loadFrame.setVisible(false);
+                Integer index = cb.getSelectedIndex();
+                // TODO load values from db with index
+
+                loadFrame.dispose();
+            }
+        });
+
+        loadFrame.add(label);
+        loadFrame.add(cb);
+        loadFrame.add(button);
+        DialogHelper.displayFrameInCenter(loadFrame);
     }
 
     private void save_tsp(){
-        // TODO @Sandra hier bitte nochmal das gleiche nur mit einem Eingabefeld fuer den Namen unter welchem das ganze
-        // TODO dann gespeichert werden soll...
+        // Create JFrame for save dialog
+        JFrame saveFrame = DialogHelper.createFrame(300, 300, "Save TSP");
+
+        // create name input
+        JTextField nameField = new JTextField("", 10);
+        nameField.setBounds(110, 50, 130, 30);
+
+        // create label for name input
+        JLabel label = new JLabel();
+        label.setText("TSP Name :");
+
+        // create save button
+        JButton button = new JButton("Submit");
+        button.setBounds(100,100,140, 40);
+
+        // add elements to JFrame
+        saveFrame.getContentPane().add(label);
+        saveFrame.getContentPane().add(nameField);
+        saveFrame.getContentPane().add(button);
+
+        // display in center
+        DialogHelper.displayFrameInCenter(saveFrame);
+
+        // Submit button onclick listener
+        button.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                saveFrame.setVisible(false);
+                String name = nameField.getText();
+                AppLayout.tsp_name = name;
+                saveFrame.dispose();
+                // TODO dann gespeichert werden soll...
+            }
+        });
     }
 }
 
