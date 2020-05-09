@@ -25,15 +25,14 @@ public class ComboboxTableCellEditor extends AbstractCellEditor implements Table
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
 
         DefaultComboBoxModel model = new DefaultComboBoxModel(masterValues.toArray(new String[masterValues.size()]));
-        for(int j=0; j < table.getColumnCount(); j++){
 
-            for (int index = 0; index < table.getRowCount(); index++) {
-                if (index != row && j != column) {
-                    String cellValue = (String) table.getValueAt(index, j);
-                    model.removeElement(cellValue);
-                }
+        for (int index = 0; index < table.getRowCount(); index++) {
+            if (index != row) {
+                String cellValue = (String) table.getValueAt(index, column);
+                model.removeElement(cellValue);
             }
         }
+
 
 
         editor.setModel(model);

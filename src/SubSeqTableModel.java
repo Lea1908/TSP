@@ -27,11 +27,7 @@ public class SubSeqTableModel extends DefaultTableModel {
         add(tData);
     }
 
-    public boolean isCellEditable(int row, int col) {
-        return false;
-    }
-
-    public void add(TownData rowData) {
+    private void add(TownData rowData) {
         if (rowData == null) {
             throw new IllegalArgumentException("rowData cannot be null");
         }
@@ -41,5 +37,26 @@ public class SubSeqTableModel extends DefaultTableModel {
         rowVector.add(rowData.getY());
 
         super.addRow(rowVector);
+    }
+
+    public void removeColumn(int column) {
+        // for each row, remove the column
+        Vector rows = dataVector;
+        for (Object row : rows) {
+            ((Vector) row).remove(column);
+        }
+
+        // remove the header
+        columnIdentifiers.remove(column);
+
+        // notify
+        fireTableStructureChanged();
+    }
+
+    @Override
+    public void removeRow(int row) {
+        // It is very ugly but we overwrite it to a removeColumn fct. since we don't need the remove row fct in this model
+        //FIXME FIXME FIXME
+        removeColumn(row);
     }
 }
