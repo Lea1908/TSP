@@ -3,7 +3,7 @@ import java.util.Random;
 public class TspRun {
 
     //Array mit Stadt-Objekten
-    public city [] cities;
+    public City[] cities;
     //Distanz zwischen zwei Staedten
     double dist_of_two;
     //Distanzumme der ganzen Rundreise
@@ -11,13 +11,13 @@ public class TspRun {
 
 
     //Konstruktor
-    public TspRun(city [] cities1)
+    public TspRun(City[] cities1)
     {
         cities = cities1;
     }
 
     //Berechnet die Distanz zwischen zwei Städten
-    public double calcDistanceOfTwo(city city1, city city2)
+    public double calcDistanceOfTwo(City city1, City city2)
     {
 
 
@@ -27,7 +27,7 @@ public class TspRun {
     }
 
     //Berechnet die Distanzumme der ganzen Rundreise
-    public double calcDistanceSum(city [] cities)
+    public double calcDistanceSum(City[] cities)
     {
         double temp_dist = 0;
         int length = cities.length;
@@ -44,7 +44,7 @@ public class TspRun {
         return dist_sum;
     }
 
-    public city [] shuffleArray(city [] cities)
+    public City[] shuffleArray(City[] cities)
     {
         Random rngsus = new Random();
         int randvar1 = rngsus.nextInt(cities.length);
@@ -52,7 +52,7 @@ public class TspRun {
         //System.out.println("Erste Variable: " + randvar1);
         //System.out.println("Zweite Variable: " + randvar2);
 
-        city temp = cities[randvar1];
+        City temp = cities[randvar1];
         cities[randvar1] = cities[randvar2];
         cities[randvar2] = temp;
 

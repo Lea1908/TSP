@@ -1,9 +1,7 @@
 import javax.swing.*;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -178,10 +176,10 @@ public class AppLayout extends JFrame{//inheriting JFrame
         // Results
         addComponent(container, grid_bag_layout, results,               6, 0, 6, 1, 6., 0.0);
         addComponent(container, grid_bag_layout, solutions,             6, 1, 6, 1, 6., 0.0);
-        addComponent(container, grid_bag_layout, scroll_result_print,   6, 2, 6, 2, 6., 0.0);
+        addComponent(container, grid_bag_layout, scroll_result_print,   6, 2, 6, 4, 6., 0.0);
 
-        addComponent(container, grid_bag_layout, local_statistic,       6, 4, 6, 1, 6., 0.0);
-        addComponent(container, grid_bag_layout, global_statistic,      6, 7, 6, 1, 6., 0.0);
+        addComponent(container, grid_bag_layout, local_statistic,       6, 6, 6, 1, 6., 0.0);
+        addComponent(container, grid_bag_layout, global_statistic,      6, 11, 6, 1, 6., 0.0);
 
         // Add listener Input
         add_to_list.addActionListener(new ButtonListenerInput(input_table, delete_town, start_town, end_town, subseq_table));
@@ -196,7 +194,7 @@ public class AppLayout extends JFrame{//inheriting JFrame
         save.addActionListener(new ButtonListenerLoadSave());
 
         // Add listener for calculate TSP
-        start_clac.addActionListener(new ButtonListenerClearCalculate(input_table));
+        start_clac.addActionListener(new ButtonListenerClearCalculate(input_table, solutions, result_print));
 
         // Add a Listener to the input table
         //input_table.getModel().addTableModelListener(new ChangeListener(){
@@ -557,8 +555,12 @@ class ButtonListenerLoadSave implements ActionListener{
 
 class ButtonListenerClearCalculate implements ActionListener{
     JTable input_table;
-    ButtonListenerClearCalculate(JTable table){
+    JComboBox solutions;
+    JList result_print;
+    ButtonListenerClearCalculate(JTable table, JComboBox dropdown, JList list){
             input_table = table;
+            solutions = dropdown;
+            result_print = list;
         }
 
         public void actionPerformed(ActionEvent e){
@@ -579,19 +581,30 @@ class ButtonListenerClearCalculate implements ActionListener{
             // TODO implement the calculation
             DefaultTableModel model = (DefaultTableModel) input_table.getModel();
             Vector data_vec = model.getDataVector();
-            city[] cities = new city[data_vec.size()];
+            City[] cities = new City[data_vec.size()];
             int i = 0;
             for(Object obj : data_vec){
                 Vector vec = (Vector) obj;
                 String town = (String)vec.get(0);
+                // TODO The user could enter x or y that is not a number... -> Error
                 Double x = Double.parseDouble((String)vec.get(1));
                 Double y = Double.parseDouble((String)(vec.get(2)));
 
-                cities[i] = new city(x, y, town);
+                cities[i] = new City(x, y, town);
                 i++;
             }
 
-            TSPAlgo.call_tsp(cities);
+            Result result = TSPAlgo.call_tsp(cities);
+            solutions.addItem("Solution 1");
+            Vector solution_print = new Vector();
+            solution_print.add("The optimal length of your tour is: ".concat(String.valueOf(result.opt_tour_len)));
+            solution_print.add("Visit the towns in the following order: ");
+            for(Object obj : result.best_tour){
+                City city = (City) obj;
+                solution_print.add(city.city_name);
+            }
+            result_print.setListData(solution_print);
+
         }
 }
 
