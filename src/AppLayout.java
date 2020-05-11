@@ -305,7 +305,7 @@ class ButtonListenerInput implements ActionListener{
                 if (town_cand.equals(town) || (x_cand.equals(x) && y_cand.equals(y))){
                     add_row_to_list = false;
                     //TODO construct a warning-pop-up window to tell the user why (s)he could not add his/her input
-                    JOptionPane.showMessageDialog(null, "Town " + town + " could not be added because it already exists in the list!", "Warning" , JOptionPane.INFORMATION_MESSAGE);
+                    DialogHelper.showWarning("Town " + town + " could not be added because it already exists in the list!");
                 }
             }
 
@@ -375,8 +375,10 @@ class ButtonListenerInput implements ActionListener{
                 ComboboxTableCellEditor editor = new ComboboxTableCellEditor(towns);
                 subseq_table.getColumnModel().getColumn(j).setCellEditor(editor);
             }
+        } else {
+            // TODO maybe different error message when no towns are available
+            JOptionPane.showMessageDialog(null, "No town has been selected!", "Warning" , JOptionPane.INFORMATION_MESSAGE);
         }
-
 
     }
 }
@@ -499,8 +501,15 @@ class ButtonListenerLoadSave implements ActionListener{
         DialogHelper.displayFrameInCenter(loadFrame);
 
     }
-
+    private Boolean ready_for_calculation() {
+        // TODO check if town list is filled
+        return true;
+    }
     private void save_tsp(){
+        if (!ready_for_calculation()) {
+            DialogHelper.showWarning("Please enter at least 3 towns to start the calculation");
+            return;
+        }
         // Create JFrame for save dialog
         JFrame saveFrame = DialogHelper.createFrame(300, 300, "Save TSP");
 
@@ -531,9 +540,15 @@ class ButtonListenerLoadSave implements ActionListener{
             public void actionPerformed(ActionEvent arg0) {
                 saveFrame.setVisible(false);
                 String name = nameField.getText();
-                //AppLayout.tsp_name = name;
-                saveFrame.dispose();
-                // TODO dann gespeichert werden soll...
+                if (name.equals("")) {
+                    DialogHelper.showWarning("Please enter a name for your TSP!");
+                } else {
+                    //AppLayout.tsp_name = name;
+                    saveFrame.dispose();
+                    // TODO dann gespeichert werden soll...
+
+                    // TODO warning if tsp with given name already exists in db
+                }
             }
         });
 

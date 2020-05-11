@@ -14,4 +14,7 @@ public class DialogHelper {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
+    public static void showWarning(String message) {
+        JOptionPane.showMessageDialog(null, message, "Warning" , JOptionPane.INFORMATION_MESSAGE);
+    }
 }
