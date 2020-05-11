@@ -1,4 +1,7 @@
 import javax.swing.*;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import java.awt.*;
@@ -191,6 +194,14 @@ public class AppLayout extends JFrame{//inheriting JFrame
         // Add listener for Load TSP and Save TSP
         load_tsp.addActionListener(new ButtonListenerLoadSave());
         save.addActionListener(new ButtonListenerLoadSave());
+
+        // Add a Listener to the input table
+        input_table.getModel().addTableModelListener(new ChangeListener(){
+            @Override
+            public void changed(ObservableValue<? extends String> ov, String t, String t1){
+                
+            }
+        });
 
         // Define basic layout for the main window of the app
         setSize(1200, 800);  // define the size of the window
@@ -523,6 +534,44 @@ class ButtonListenerLoadSave implements ActionListener{
         });
 
     }
+}
+
+class ButtonListenerClearCalculate implements ActionListener{
+    ButtonListenerClearCalculate(){
+
+        }
+
+        public void actionPerformed(ActionEvent e){
+        String command = e.getActionCommand();
+        if(command.equals("Clear TSP")){
+            clear_tsp();
+        }
+        else if(command.equals("Start calculation")){
+            calculate();
+        }
+        }
+
+        private void clear_tsp(){
+            // TODO
+        }
+
+        private void calculate(){
+            // TODO implement the calculation
+        }
+}
+
+class InputTableListener implements TableModelListener{
+    JTable input_table;
+
+    InputTableListener(){
+
+    }
+
+    @Override
+    public void tableChanged(TableModelEvent e){
+        //if input_table.
+    }
+
 }
 
 class TownData{
