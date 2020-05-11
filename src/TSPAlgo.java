@@ -35,6 +35,10 @@ public class TSPAlgo {
 
 
 
+        call_tsp(cities);
+    }
+
+    static public void call_tsp(city[] cities){
         //Erstes TSP-Objekt wird erstellt
         TspRun firstrun = new TspRun(cities);
 
@@ -45,8 +49,11 @@ public class TSPAlgo {
         double optimum;
         //Laufvariable, welcher Durchgang das bisher beste Ergebnis gefunden hat
         int best_run = 0;
+        //citylength
+        int cities_length = cities.length;
         //Zwischenergebnis der Anordnung der Staedte des bisher besten Ergebnisses
         city [] best_route = new city[cities_length];
+
 
         //Erster Durchgang, Funktion wird aufgerufen und Distanz berechnet, Array unverändert
         sum = firstrun.calcDistanceSum(cities);
@@ -55,7 +62,6 @@ public class TSPAlgo {
 
         for(int i = 1; i < 5000; i++)
         {
-            sum = 0;
             firstrun.shuffleArray(cities);
             sum = firstrun.calcDistanceSum(cities);
             System.out.println("Durchgang Nummer " + i + ": " + sum);
@@ -79,6 +85,6 @@ public class TSPAlgo {
         {
             System.out.println(best_route[j].city_name);
         }
-
     }
+
 }
