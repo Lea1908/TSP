@@ -291,6 +291,7 @@ class ButtonListenerInput implements ActionListener{
                 if (town_cand.equals(town) || (x_cand.equals(x) && y_cand.equals(y))){
                     add_row_to_list = false;
                     //TODO construct a warning-pop-up window to tell the user why (s)he could not add his/her input
+                    JOptionPane.showMessageDialog(null, "Town " + town + " could not be added because it already exists in the list!", "Warning" , JOptionPane.INFORMATION_MESSAGE);
                 }
             }
 
