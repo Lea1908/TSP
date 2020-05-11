@@ -1,4 +1,7 @@
 import javax.swing.*;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import java.awt.*;
@@ -191,6 +194,17 @@ public class AppLayout extends JFrame{//inheriting JFrame
         // Add listener for Load TSP and Save TSP
         load_tsp.addActionListener(new ButtonListenerLoadSave());
         save.addActionListener(new ButtonListenerLoadSave());
+
+        // Add listener for calculate TSP
+        start_clac.addActionListener(new ButtonListenerClearCalculate(input_table));
+
+        // Add a Listener to the input table
+        //input_table.getModel().addTableModelListener(new ChangeListener(){
+            //@Override
+            //public void changed(ObservableValue<? extends String> ov, String t, String t1){
+                
+        //}
+        //});
 
         // Define basic layout for the main window of the app
         setSize(1200, 800);  // define the size of the window
@@ -524,6 +538,60 @@ class ButtonListenerLoadSave implements ActionListener{
         });
 
     }
+}
+
+class ButtonListenerClearCalculate implements ActionListener{
+    JTable input_table;
+    ButtonListenerClearCalculate(JTable table){
+            input_table = table;
+        }
+
+        public void actionPerformed(ActionEvent e){
+        String command = e.getActionCommand();
+        if(command.equals("Clear TSP")){
+            clear_tsp();
+        }
+        else if(command.equals("Start calculation")){
+            calculate();
+        }
+        }
+
+        private void clear_tsp(){
+            // TODO
+        }
+
+        private void calculate(){
+            // TODO implement the calculation
+            DefaultTableModel model = (DefaultTableModel) input_table.getModel();
+            Vector data_vec = model.getDataVector();
+            city[] cities = new city[data_vec.size()];
+            int i = 0;
+            for(Object obj : data_vec){
+                Vector vec = (Vector) obj;
+                String town = (String)vec.get(0);
+                Double x = Double.parseDouble((String)vec.get(1));
+                Double y = Double.parseDouble((String)(vec.get(2)));
+
+                cities[i] = new city(x, y, town);
+                i++;
+            }
+
+            TSPAlgo.call_tsp(cities);
+        }
+}
+
+class InputTableListener implements TableModelListener{
+    JTable input_table;
+
+    InputTableListener(){
+
+    }
+
+    @Override
+    public void tableChanged(TableModelEvent e){
+        //if input_table.
+    }
+
 }
 
 class TownData{
