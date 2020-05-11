@@ -45,7 +45,7 @@ public class TSPAlgo {
         //Zwischenergebnis des bisher besten Ergebnisses
         double optimum;
         //Laufvariable, welcher Durchgang das bisher beste Ergebnis gefunden hat
-        int best_run = 0;
+        long best_run = 0;
         //citylength
         int cities_length = cities.length;
         //Zwischenergebnis der Anordnung der Staedte des bisher besten Ergebnisses
@@ -56,12 +56,24 @@ public class TSPAlgo {
         sum = firstrun.calcDistanceSum(cities);
         optimum = sum;
 
+        //Berechnung läuft von
+        long startTime = System.currentTimeMillis();
 
-        for(int i = 1; i < 5000; i++)
+        //Berechnungsdauer in Sekunden
+        int duration = 20;
+
+        //Berechnung läuft bis
+        long endTime = startTime + (duration * 1000);
+        //Durchgangsnummer
+        long i = 0;
+
+
+        while(System.currentTimeMillis() < endTime)
         {
             firstrun.shuffleArray(cities);
             sum = firstrun.calcDistanceSum(cities);
             System.out.println("Durchgang Nummer " + i + ": " + sum);
+            i++;
             if(sum < optimum)
             {
                 optimum = sum;
@@ -75,7 +87,7 @@ public class TSPAlgo {
         }
 
         //Ausgabe des besten Ergebnis
-        System.out.println("Beste Lösung aus Durchgang Nummer " + best_run + ": " + optimum);
+        //System.out.println("Beste Lösung aus Durchgang Nummer " + best_run + ": " + optimum);
 
         //Ausgabe der Reihenfolge der Staedte im besten Ergebnis
         //for (int j = 0; j < cities_length; j++)

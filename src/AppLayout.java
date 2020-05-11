@@ -193,8 +193,10 @@ public class AppLayout extends JFrame{//inheriting JFrame
         load_tsp.addActionListener(new ButtonListenerLoadSave());
         save.addActionListener(new ButtonListenerLoadSave());
 
-        // Add listener for calculate TSP
-        start_clac.addActionListener(new ButtonListenerClearCalculate(input_table, solutions, result_print));
+        // Add listener for calculate TSP and clear TSP
+        start_clac.addActionListener(new ButtonListenerCalculate(input_table, solutions, result_print));
+        clear_tsp.addActionListener(new ButtonListenerClear(input_table, subseq_table, solutions, result_print,
+                town_textfield, x_textfield, y_textfield, start_town, end_town, delete_subseq, delete_town));
 
         // Add a Listener to the input table
         //input_table.getModel().addTableModelListener(new ChangeListener(){
@@ -553,11 +555,11 @@ class ButtonListenerLoadSave implements ActionListener{
     }
 }
 
-class ButtonListenerClearCalculate implements ActionListener{
+class ButtonListenerCalculate implements ActionListener{
     JTable input_table;
     JComboBox solutions;
     JList result_print;
-    ButtonListenerClearCalculate(JTable table, JComboBox dropdown, JList list){
+    ButtonListenerCalculate(JTable table, JComboBox dropdown, JList list){
             input_table = table;
             solutions = dropdown;
             result_print = list;
@@ -565,16 +567,9 @@ class ButtonListenerClearCalculate implements ActionListener{
 
         public void actionPerformed(ActionEvent e){
         String command = e.getActionCommand();
-        if(command.equals("Clear TSP")){
-            clear_tsp();
-        }
-        else if(command.equals("Start calculation")){
+        if(command.equals("Start calculation")){
             calculate();
         }
-        }
-
-        private void clear_tsp(){
-            // TODO
         }
 
         private void calculate(){
@@ -606,6 +601,62 @@ class ButtonListenerClearCalculate implements ActionListener{
             result_print.setListData(solution_print);
 
         }
+}
+
+class ButtonListenerClear implements ActionListener{
+    JTable input_table;
+    JTable subseq_table;
+    JComboBox solutions;
+    JList result_print;
+    JTextField town;
+    JTextField x;
+    JTextField y;
+    JComboBox start_town;
+    JComboBox end_town;
+    JComboBox delete_subseq;
+    JComboBox delete_town;
+    ButtonListenerClear(JTable table, JTable table1, JComboBox dropdown, JList list, JTextField textfield1,
+                        JTextField textfield2, JTextField textField3, JComboBox dropdown2, JComboBox dropdown3,
+                        JComboBox dropdown4, JComboBox dropdown5){
+        input_table = table;
+        solutions = dropdown;
+        result_print = list;
+        subseq_table = table1;
+        town = textfield1;
+        x = textfield2;
+        y = textField3;
+        start_town = dropdown2;
+        end_town = dropdown3;
+        delete_subseq = dropdown4;
+        delete_town = dropdown5;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        String command = e.getActionCommand();
+        if (command.equals("Clear TSP")) {
+            clear_tsp();
+        }
+    }
+
+    private void clear_tsp(){
+        input_table.setModel(new InputTableModel());
+        subseq_table.setModel(new SubSeqTableModel());
+        solutions.removeAllItems();
+        result_print.setModel(new DefaultListModel());
+        town.setText("");
+        x.setText("");
+        y.setText("");
+        start_town.removeAllItems();
+        start_town.addItem("");
+        end_town.removeAllItems();
+        end_town.addItem("");
+        delete_subseq.removeAllItems();
+        delete_subseq.addItem("");
+        delete_subseq.addItem("Subsequence 1");
+        delete_town.removeAllItems();
+        delete_town.addItem("");
+    }
+
 }
 
 class InputTableListener implements TableModelListener{
