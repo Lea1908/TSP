@@ -2,8 +2,9 @@ import EntityManager.CityManager;
 import tsp.model.CityEntity;
 
 import javax.swing.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -181,10 +182,10 @@ public class AppLayout extends JFrame{//inheriting JFrame
         // Results
         addComponent(container, grid_bag_layout, results,               6, 0, 6, 1, 6., 0.0);
         addComponent(container, grid_bag_layout, solutions,             6, 1, 6, 1, 6., 0.0);
-        addComponent(container, grid_bag_layout, scroll_result_print,   6, 2, 6, 2, 6., 0.0);
+        addComponent(container, grid_bag_layout, scroll_result_print,   6, 2, 6, 4, 6., 0.0);
 
-        addComponent(container, grid_bag_layout, local_statistic,       6, 4, 6, 1, 6., 0.0);
-        addComponent(container, grid_bag_layout, global_statistic,      6, 7, 6, 1, 6., 0.0);
+        addComponent(container, grid_bag_layout, local_statistic,       6, 6, 6, 1, 6., 0.0);
+        addComponent(container, grid_bag_layout, global_statistic,      6, 11, 6, 1, 6., 0.0);
 
         // Add listener Input
         add_to_list.addActionListener(new ButtonListenerInput(input_table, delete_town, start_town, end_town, subseq_table));
@@ -197,6 +198,19 @@ public class AppLayout extends JFrame{//inheriting JFrame
         // Add listener for Load TSP and Save TSP
         load_tsp.addActionListener(new ButtonListenerLoadSave());
         save.addActionListener(new ButtonListenerLoadSave());
+
+        // Add listener for calculate TSP and clear TSP
+        start_clac.addActionListener(new ButtonListenerCalculate(input_table, solutions, result_print));
+        clear_tsp.addActionListener(new ButtonListenerClear(input_table, subseq_table, solutions, result_print,
+                town_textfield, x_textfield, y_textfield, start_town, end_town, delete_subseq, delete_town));
+
+        // Add a Listener to the input table
+        //input_table.getModel().addTableModelListener(new ChangeListener(){
+            //@Override
+            //public void changed(ObservableValue<? extends String> ov, String t, String t1){
+                
+        //}
+        //});
 
         // Define basic layout for the main window of the app
         setSize(1200, 800);  // define the size of the window
@@ -303,6 +317,7 @@ class ButtonListenerInput implements ActionListener{
                 if (town_cand.equals(town) || (x_cand.equals(x) && y_cand.equals(y))){
                     add_row_to_list = false;
                     //TODO construct a warning-pop-up window to tell the user why (s)he could not add his/her input
+                    DialogHelper.showWarning("Town " + town + " could not be added because it already exists in the list!");
                 }
             }
 
@@ -372,8 +387,10 @@ class ButtonListenerInput implements ActionListener{
                 ComboboxTableCellEditor editor = new ComboboxTableCellEditor(towns);
                 subseq_table.getColumnModel().getColumn(j).setCellEditor(editor);
             }
+        } else {
+            // TODO maybe different error message when no towns are available
+            JOptionPane.showMessageDialog(null, "No town has been selected!", "Warning" , JOptionPane.INFORMATION_MESSAGE);
         }
-
 
     }
 }
@@ -494,9 +511,24 @@ class ButtonListenerLoadSave implements ActionListener{
         loadFrame.add(cb);
         loadFrame.add(button);
         DialogHelper.displayFrameInCenter(loadFrame);
-    }
+            }
+        });
 
+        loadFrame.add(label);
+        loadFrame.add(cb);
+        loadFrame.add(button);
+        DialogHelper.displayFrameInCenter(loadFrame);
+
+    }
+    private Boolean ready_for_calculation() {
+        // TODO check if town list is filled
+        return true;
+    }
     private void save_tsp(){
+        if (!ready_for_calculation()) {
+            DialogHelper.showWarning("Please enter at least 3 towns to start the calculation");
+            return;
+        }
         // Create JFrame for save dialog
         JFrame saveFrame = DialogHelper.createFrame(300, 300, "Save TSP");
 
@@ -527,12 +559,137 @@ class ButtonListenerLoadSave implements ActionListener{
             public void actionPerformed(ActionEvent arg0) {
                 saveFrame.setVisible(false);
                 String name = nameField.getText();
-                AppLayout.tsp_name = name;
-                saveFrame.dispose();
-                // TODO dann gespeichert werden soll...
+                if (name.equals("")) {
+                    DialogHelper.showWarning("Please enter a name for your TSP!");
+                } else {
+                    //AppLayout.tsp_name = name;
+                    saveFrame.dispose();
+                    // TODO dann gespeichert werden soll...
+
+                    // TODO warning if tsp with given name already exists in db
+                }
             }
         });
+
     }
+}
+
+class ButtonListenerCalculate implements ActionListener{
+    JTable input_table;
+    JComboBox solutions;
+    JList result_print;
+    ButtonListenerCalculate(JTable table, JComboBox dropdown, JList list){
+            input_table = table;
+            solutions = dropdown;
+            result_print = list;
+        }
+
+        public void actionPerformed(ActionEvent e){
+        String command = e.getActionCommand();
+        if(command.equals("Start calculation")){
+            calculate();
+        }
+        }
+
+        private void calculate(){
+            // TODO implement the calculation
+            DefaultTableModel model = (DefaultTableModel) input_table.getModel();
+            Vector data_vec = model.getDataVector();
+            City[] cities = new City[data_vec.size()];
+            int i = 0;
+            for(Object obj : data_vec){
+                Vector vec = (Vector) obj;
+                String town = (String)vec.get(0);
+                // TODO The user could enter x or y that is not a number... -> Error
+                Double x = Double.parseDouble((String)vec.get(1));
+                Double y = Double.parseDouble((String)(vec.get(2)));
+
+                cities[i] = new City(x, y, town);
+                i++;
+            }
+
+            Result result = TSPAlgo.call_tsp(cities);
+            solutions.addItem("Solution 1");
+            Vector solution_print = new Vector();
+            solution_print.add("The optimal length of your tour is: ".concat(String.valueOf(result.opt_tour_len)));
+            solution_print.add("Visit the towns in the following order: ");
+            for(Object obj : result.best_tour){
+                City city = (City) obj;
+                solution_print.add(city.city_name);
+            }
+            result_print.setListData(solution_print);
+
+        }
+}
+
+class ButtonListenerClear implements ActionListener{
+    JTable input_table;
+    JTable subseq_table;
+    JComboBox solutions;
+    JList result_print;
+    JTextField town;
+    JTextField x;
+    JTextField y;
+    JComboBox start_town;
+    JComboBox end_town;
+    JComboBox delete_subseq;
+    JComboBox delete_town;
+    ButtonListenerClear(JTable table, JTable table1, JComboBox dropdown, JList list, JTextField textfield1,
+                        JTextField textfield2, JTextField textField3, JComboBox dropdown2, JComboBox dropdown3,
+                        JComboBox dropdown4, JComboBox dropdown5){
+        input_table = table;
+        solutions = dropdown;
+        result_print = list;
+        subseq_table = table1;
+        town = textfield1;
+        x = textfield2;
+        y = textField3;
+        start_town = dropdown2;
+        end_town = dropdown3;
+        delete_subseq = dropdown4;
+        delete_town = dropdown5;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        String command = e.getActionCommand();
+        if (command.equals("Clear TSP")) {
+            clear_tsp();
+        }
+    }
+
+    private void clear_tsp(){
+        input_table.setModel(new InputTableModel());
+        subseq_table.setModel(new SubSeqTableModel());
+        solutions.removeAllItems();
+        result_print.setModel(new DefaultListModel());
+        town.setText("");
+        x.setText("");
+        y.setText("");
+        start_town.removeAllItems();
+        start_town.addItem("");
+        end_town.removeAllItems();
+        end_town.addItem("");
+        delete_subseq.removeAllItems();
+        delete_subseq.addItem("");
+        delete_subseq.addItem("Subsequence 1");
+        delete_town.removeAllItems();
+        delete_town.addItem("");
+    }
+
+}
+
+class InputTableListener implements TableModelListener{
+    JTable input_table;
+
+    InputTableListener(){
+
+    }
+
+    @Override
+    public void tableChanged(TableModelEvent e){
+        //if input_table.
+    }
+
 }
 
 class TownData{
