@@ -14,6 +14,9 @@ public class RoundtripEntityManager extends EntityManager{
 
     /* Method to CREATE a roundtrip in the database */
     public Integer create(Timestamp createDate, String name, double distance){
+        if (createDate == null || name == null) {
+            return -1;
+        }
         Session session = factory.openSession();
         Transaction tx = null;
         Integer roundtripId = null;
@@ -93,7 +96,8 @@ public class RoundtripEntityManager extends EntityManager{
             RoundtripCitiesEntity rtce = new RoundtripCitiesEntity();
             rtce.setRoundtripId(roundtrip_id);
             rtce.setCityId(city_id);
-            roundtripCitiesEntityId = (Integer) session.save(rtce);
+            var result = (RoundtripCitiesEntity) session.save(rtce);
+            roundtripCitiesEntityId = result.getId();
             tx.commit();
         } catch (HibernateException e) {
             if (tx!=null) tx.rollback();

@@ -15,15 +15,18 @@ public class CityManager extends EntityManager {
 
     /* Method to CREATE a city in the database */
     public Integer findExistingOrCreateNewCity(String name, double x, double y){
+        if (name == null) {
+            return -1;
+        }
         Session session = factory.openSession();
         Transaction tx = null;
         Integer cityId = null;
         try {
             tx = session.beginTransaction();
-            String queryString = "from CityEntity where name=" + name + ", xCoordinate=" + x + ", yCoordinate=" + y;
+            String queryString = "FROM CityEntity WHERE name='" + name + "'";
             Query query = session.createQuery(queryString);
             CityEntity existingCityEntity = (CityEntity) query.uniqueResult();
-            if (existingCityEntity != null) {
+            if (existingCityEntity != null && existingCityEntity.getxCoordinate() != x  && existingCityEntity.getyCoordinate() != y) {
                 cityId = existingCityEntity.getId();
             } else {
                 CityEntity cityEntity = new CityEntity();

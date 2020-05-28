@@ -70,6 +70,9 @@ public class TspEntityManager extends EntityManager{
     }
 
     public Integer createTspRoundtrip(Integer tspId, Integer roundtripId) {
+        if (tspId == null || roundtripId == null) {
+            return null;
+        }
         Session session = factory.openSession();
         Transaction tx = null;
         Integer tspRoundtripId = null;
@@ -77,7 +80,8 @@ public class TspEntityManager extends EntityManager{
         try {
             tx = session.beginTransaction();
             TspRoundtripsEntity tspRoundtripsEntity = new TspRoundtripsEntity(tspId, roundtripId);
-            tspRoundtripId = (Integer) session.save(tspRoundtripsEntity);
+            var result = (TspRoundtripsEntity) session.save(tspRoundtripsEntity);
+            tspRoundtripId = result.getId();
             tx.commit();
         } catch (HibernateException e) {
             if (tx!=null) tx.rollback();

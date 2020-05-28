@@ -20,10 +20,8 @@ public class AppLayout extends JFrame{//inheriting JFrame
     static JTextField x_textfield = new JTextField();
     // Initialize y input field
     static JTextField y_textfield = new JTextField();
-    // Initialize town list
-    static List<CityEntity> cities = new ArrayList<>();
-    // Initialize tsp name
-    static String tsp_name = "";
+    // Declare TSP
+    static TSP tsp = new TSP();
 
     // Constructor
     AppLayout(){
@@ -339,7 +337,8 @@ class ButtonListenerInput implements ActionListener{
                 }
             }
 
-            AppLayout.cities = cities;
+            // set cities of TSP object
+            AppLayout.tsp.setCities(cities);
         }
     }
 
@@ -363,6 +362,7 @@ class ButtonListenerInput implements ActionListener{
 
             // initialize a list with the towns for the subsequence table which is filled in the loop below
             List<String> towns = new ArrayList<>(data_vec.size());
+            List<CityEntity> cities = new ArrayList<>(data_vec.size());
 
             for(Object object : data_vec){
                 //get next rowdata
@@ -373,6 +373,8 @@ class ButtonListenerInput implements ActionListener{
 
                 if(town.equals(town_to_delete)){
                     model.removeRow(i);
+                    // remove from tsp too
+                    AppLayout.tsp.deleteCityFromList(town);
                 }
                 else{
                     towns.add(town);
@@ -513,13 +515,15 @@ class ButtonListenerLoadSave implements ActionListener{
         DialogHelper.displayFrameInCenter(loadFrame);
     }
 
-    private Boolean ready_for_calculation() {
-        // TODO check if town list is filled
+    private Boolean ready_for_saving() {
+        if (AppLayout.tsp.getTsp_result()  == null) {
+            return false;
+        }
         return true;
     }
     private void save_tsp(){
-        if (!ready_for_calculation()) {
-            DialogHelper.showWarning("Please enter at least 3 towns to start the calculation");
+        if (!ready_for_saving()) {
+            DialogHelper.showWarning("Please enter at least 3 towns and start the calculation");
             return;
         }
         // Create JFrame for save dialog
@@ -558,7 +562,8 @@ class ButtonListenerLoadSave implements ActionListener{
                     //AppLayout.tsp_name = name;
                     saveFrame.dispose();
                     // TODO dann gespeichert werden soll...
-
+                    AppLayout.tsp.setName(name);
+                    Integer tspId = AppLayout.tsp.CreateTSP();
                     // TODO warning if tsp with given name already exists in db
                 }
             }
@@ -576,10 +581,19 @@ class ButtonListenerCalculate implements ActionListener{
             solutions = dropdown;
             result_print = list;
         }
-
+        private Boolean ready_for_calculation() {
+            if (AppLayout.tsp == null || AppLayout.tsp.cities == null || AppLayout.tsp.cities.size() < 3) {
+                return false;
+            }
+            return true;
+        }
         public void actionPerformed(ActionEvent e){
         String command = e.getActionCommand();
         if(command.equals("Start calculation")){
+            if(!ready_for_calculation()) {
+                DialogHelper.showWarning("Please enter at least 3 cities to start the calculation!");
+                return;
+            }
             calculate();
         }
         }
@@ -612,6 +626,8 @@ class ButtonListenerCalculate implements ActionListener{
             }
             result_print.setListData(solution_print);
 
+            // set result in tsp object
+            AppLayout.tsp.setTsp_result(result);
         }
 }
 
