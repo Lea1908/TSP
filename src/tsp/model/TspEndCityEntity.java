@@ -5,16 +5,12 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-@Table(name = "tsp_roundtrips", schema = "tsp_db", catalog = "")
-public class TspRoundtripsEntity implements Serializable {
+@Table(name = "tsp_endcity", schema = "tsp_db", catalog = "")
+public class TspEndCityEntity implements Serializable {
     private int id;
     private int tsp_id;
-    private int roudtrip_id;
-    public TspRoundtripsEntity() {}
-    public TspRoundtripsEntity(int tsp_id, int roudtrip_id) {
-        setTsp_id(tsp_id);
-        setRoudtrip_id(roudtrip_id);
-    }
+    private int city_id;
+
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -25,15 +21,7 @@ public class TspRoundtripsEntity implements Serializable {
     public void setId(int id) {
         this.id = id;
     }
-    @Id
-    @Column(name = "roundtrip_id")
-    public int getRoudtrip_id() {
-        return roudtrip_id;
-    }
 
-    public void setRoudtrip_id(int roudtrip_id) {
-        this.roudtrip_id = roudtrip_id;
-    }
     @Id
     @Column(name = "tsp_id")
     public int getTsp_id() {
@@ -43,13 +31,22 @@ public class TspRoundtripsEntity implements Serializable {
     public void setTsp_id(int tsp_id) {
         this.tsp_id = tsp_id;
     }
+    @Id
+    @Column(name = "city_id")
+    public int getCity_id() {
+        return city_id;
+    }
+
+    public void setCity_id(int city_id) {
+        this.city_id = city_id;
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TspRoundtripsEntity that = (TspRoundtripsEntity) o;
-        return id == that.id;
+        TspEndCityEntity entity = (TspEndCityEntity) o;
+        return id == entity.id;
     }
 
     @Override

@@ -8,10 +8,7 @@ import java.util.Objects;
 @Table(name = "tsp", schema = "tsp_db", catalog = "")
 public class TspEntity implements Serializable {
     private int id;
-    private Double maxDuration;
-    private int startCityId;
-    private int endCityId;
-    private int subsequenceId;
+    private Double maxDuration = null;
     private String name;
 
     @Id
@@ -33,33 +30,6 @@ public class TspEntity implements Serializable {
 
     public void setMaxDuration(Double maxDuration) {
         this.maxDuration = maxDuration;
-    }
-
-    @Id
-    @Column(name = "start_city_id")
-    public int getStartCityId() {
-        return startCityId;
-    }
-
-    public void setStartCityId(int id) {
-        this.startCityId = id;
-    }
-
-    @Id
-    @Column(name = "end_city_id")
-    public int getEndCityId() {
-        return id;
-    }
-
-    public void setEndCityId(int id) {
-        this.endCityId = id;
-    }
-    @Id
-    @Column(name = "subsequence_id")
-    public int getSubsequenceId() { return subsequenceId; }
-
-    public void setSubsequenceId(int id) {
-        this.subsequenceId = id;
     }
 
     @Basic

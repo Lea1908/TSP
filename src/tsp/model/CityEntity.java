@@ -1,6 +1,7 @@
 package tsp.model;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -71,5 +72,14 @@ public class CityEntity {
     @Override
     public int hashCode() {
         return Objects.hash(id, xCoordinate, yCoordinate, name);
+    }
+
+    public static CityEntity findCityByName(List<CityEntity> cities, String name) {
+        for (CityEntity city : cities) {
+            if (city.getName().equals(name)) {
+                return city;
+            }
+        }
+        return null;
     }
 }

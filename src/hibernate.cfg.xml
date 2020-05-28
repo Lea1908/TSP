@@ -18,7 +18,9 @@
       <mapping class="tsp.model.SubsequenceEntity"/>
       <mapping class="tsp.model.SubsequenceOrderEntity"/>
       <mapping class="tsp.model.TspEntity"/>
+    <mapping class="tsp.model.TspEndCityEntity"/>
     <mapping class="tsp.model.TspRoundtripsEntity"/>
+    <mapping class="tsp.model.TspStartCityEntity"/>
     <!-- DB schema will be updated if needed -->
     <!-- <property name="hibernate.hbm2ddl.auto">update</property> -->
   </session-factory>

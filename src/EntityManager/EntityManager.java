@@ -13,4 +13,5 @@ public class EntityManager {
             throw new ExceptionInInitializerError(ex);
         }
     }
+
 }
