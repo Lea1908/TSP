@@ -491,10 +491,10 @@ class ButtonListenerLoadSave implements ActionListener{
         JLabel label = new JLabel();
         label.setText("Load TSP:");
 
-        // create save button
+        // create ok button
         JButton button = new JButton("Ok");
         button.setBounds(100,100,140, 40);
-        // Submit button onclick listener
+        // ok button onclick listener
         button.addActionListener(new ActionListener() {
 
             @Override
@@ -511,15 +511,8 @@ class ButtonListenerLoadSave implements ActionListener{
         loadFrame.add(cb);
         loadFrame.add(button);
         DialogHelper.displayFrameInCenter(loadFrame);
-            }
-        });
-
-        loadFrame.add(label);
-        loadFrame.add(cb);
-        loadFrame.add(button);
-        DialogHelper.displayFrameInCenter(loadFrame);
-
     }
+
     private Boolean ready_for_calculation() {
         // TODO check if town list is filled
         return true;
@@ -541,7 +534,7 @@ class ButtonListenerLoadSave implements ActionListener{
         label.setText("TSP Name :");
 
         // create save button
-        JButton button = new JButton("Submit");
+        JButton button = new JButton("Save");
         button.setBounds(100,100,140, 40);
 
         // add elements to JFrame
