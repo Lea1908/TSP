@@ -358,16 +358,18 @@ class ButtonListenerInput implements ActionListener{
             DefaultTableModel model = (DefaultTableModel) input_table.getModel();
             // get the current data of the table stored in a vector
             Vector data_vec = model.getDataVector();
-            int i = 0;
 
             // initialize a list with the towns for the subsequence table which is filled in the loop below
             List<String> towns = new ArrayList<>(data_vec.size());
             List<CityEntity> cities = new ArrayList<>(data_vec.size());
+            towns.add("");
 
-            for(Object object : data_vec){
+            //for(Object object : data_vec){
+            int i = 0;
+            int number_of_towns = data_vec.size();
+            for(int k=0; k < number_of_towns; k++){
                 //get next rowdata
-                Vector row_data = (Vector) object;
-
+                Vector row_data = (Vector) data_vec.get(i);
                 // get the town contained in the row
                 String town = (String) row_data.get(0);
 
@@ -377,18 +379,44 @@ class ButtonListenerInput implements ActionListener{
                     AppLayout.tsp.deleteCityFromList(town);
                 }
                 else{
+                    i += 1;
                     towns.add(town);
                 }
-                i++;
             }
-            // FIXME Deletion in subseq klappt noch nicht ganz
+
+            // TODO Option 1 -> updates the choices for the towns in the subsequences but if the deleted town is not clicked again it will remain there
+            // get the model of our table so that we can use our 'own' methods
+            /*DefaultTableModel model_input = (DefaultTableModel) input_table.getModel();
+            // get the current data of the table stored in a vector
+            // initialize a list with the towns for the subsequence table which is filled in the loop below
+            List<String> towns = new ArrayList<>(data_vec.size());
+            towns.add("");
+            if(data_vec.size() != 0){
+                for(Object obj_: data_vec){
+                    String town = (String)((Vector)obj_).get(0);
+                    towns.add(town);
+                }
+                for(int p=0; p < subseq_table.getColumnCount(); p++) {
+                    ComboboxTableCellEditor editor = new ComboboxTableCellEditor(towns);
+                    subseq_table.getColumnModel().getColumn(p).setCellEditor(editor);
+                }
+            }*/
+
+            // TODO Option 2
+            // Clear the defined subsequences as they maybe not valid anymore - easiest solution
             DefaultTableModel model_subseq = (DefaultTableModel) subseq_table.getModel();
-            model_subseq.setNumRows(data_vec.size());
-            int column_num = model_subseq.getColumnCount();
-            for(int j=0; j<column_num; j++){
-                ComboboxTableCellEditor editor = new ComboboxTableCellEditor(towns);
-                subseq_table.getColumnModel().getColumn(j).setCellEditor(editor);
+            System.out.println(model_subseq.getColumnCount());
+            int column_count =  model_subseq.getColumnCount();
+            for(int j=0; j < column_count; j++){
+                System.out.println(j);
+                model_subseq.removeRow(0);
             }
+            // Initialize again the first, empty subsequence
+            model_subseq.setNumRows(data_vec.size());
+            model_subseq.addColumn("Subsequence 1");
+            ComboboxTableCellEditor editor = new ComboboxTableCellEditor(towns);
+            subseq_table.getColumnModel().getColumn(0).setCellEditor(editor);
+
         } else {
             // TODO maybe different error message when no towns are available
             JOptionPane.showMessageDialog(null, "No town has been selected!", "Warning" , JOptionPane.INFORMATION_MESSAGE);
@@ -433,6 +461,7 @@ class ButtonListenerSubSeq implements ActionListener{
         Vector data_vec = model_input.getDataVector();
         // initialize a list with the towns for the subsequence table which is filled in the loop below
         List<String> towns = new ArrayList<>(data_vec.size());
+        towns.add("");
         if(data_vec.size() != 0){
             for(Object obj: data_vec){
                 String town = (String)((Vector)obj).get(0);
@@ -461,6 +490,24 @@ class ButtonListenerSubSeq implements ActionListener{
             delete_subseq.addItem(seq_name);
         }
         model.setColumnIdentifiers(col_names);
+
+        // get the model of our table so that we can use our 'own' methods
+        DefaultTableModel model_input = (DefaultTableModel) input_table.getModel();
+        // get the current data of the table stored in a vector
+        Vector data_vec = model_input.getDataVector();
+        // initialize a list with the towns for the subsequence table which is filled in the loop below
+        List<String> towns = new ArrayList<>(data_vec.size());
+        towns.add("");
+        if(data_vec.size() != 0){
+            for(Object obj: data_vec){
+                String town = (String)((Vector)obj).get(0);
+                towns.add(town);
+            }
+            for(int i=0; i < subseq_table.getColumnCount(); i++) {
+                ComboboxTableCellEditor editor = new ComboboxTableCellEditor(towns);
+                subseq_table.getColumnModel().getColumn(i).setCellEditor(editor);
+            }
+        }
     }
 }
 
