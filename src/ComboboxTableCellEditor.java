@@ -29,7 +29,9 @@ public class ComboboxTableCellEditor extends AbstractCellEditor implements Table
         for (int index = 0; index < table.getRowCount(); index++) {
             if (index != row) {
                 String cellValue = (String) table.getValueAt(index, column);
-                model.removeElement(cellValue);
+                if(cellValue != "") {
+                    model.removeElement(cellValue);
+                }
             }
         }
 
