@@ -11,6 +11,7 @@ import tsp.model.TspEntity;
 import tsp.model.TspRoundtripsEntity;
 
 import java.util.List;
+import java.util.Vector;
 
 public class TspEntityManager extends EntityManager{
     /* Method to CREATE a tsp in the database */
@@ -45,6 +46,31 @@ public class TspEntityManager extends EntityManager{
             session.close();
         }
         return tspId;
+    }
+    public Vector<String> listAllTSPNames() {
+        List<TspEntity> tsps = listAllTSPs();
+        Vector<String> tspNames = new Vector<String>();
+        for (TspEntity tsp : tsps) {
+            tspNames.add(tsp.getName());
+        }
+        return tspNames;
+    }
+    public List<TspEntity> listAllTSPs() {
+        Session session = factory.openSession();
+        Transaction tx = null;
+        List<TspEntity> tsps = null;
+
+        try {
+            tx = session.beginTransaction();
+            tsps = loadAllData(TspEntity.class, session);
+            tx.commit();
+        } catch (HibernateException e) {
+            if (tx!=null) tx.rollback();
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+        return tsps;
     }
 
     public Integer updateTsp(TspEntity tspEntity){

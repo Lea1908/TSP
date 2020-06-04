@@ -2,6 +2,7 @@ package test;
 
 import EntityManager.RoundtripEntityManager;
 import EntityManager.TspEntityManager;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -43,5 +44,11 @@ class TspEntityManagerTest {
         var roundtripId = roundtripTester.create(timestamp, "testRoundtrip", 0.0);
         assertNotNull(roundtripId);
         assertNotNull(tester.createTspRoundtrip(tspId, roundtripId));
+    }
+
+    @Test
+    void listAllTSPs() {
+        TspEntityManager tester = new TspEntityManager();
+        assertNotNull(tester.listAllTSPs());
     }
 }

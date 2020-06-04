@@ -1,5 +1,7 @@
 import EntityManager.CityManager;
+import EntityManager.TspEntityManager;
 import tsp.model.CityEntity;
+import tsp.model.TspEntity;
 
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
@@ -527,13 +529,17 @@ class ButtonListenerLoadSave implements ActionListener{
     }
 
     private void load_tsp(){
-        // TODO @Sandra hier muesstest du ein pop-up window erstellen mit einem dropdown menue der bereits gespeicherten
         // Create JFrame for load dialog
         JFrame loadFrame = DialogHelper.createFrame(600, 600, "Load TSP");
 
-        // TODO get from db
+        TspEntityManager tspEntityManager = new TspEntityManager();
+        Vector<String> tsps = tspEntityManager.listAllTSPNames();
+        if (tsps.isEmpty()) {
+            DialogHelper.showWarning("No TSPs found.");
+            return;
+        }
         // create dropdown menu
-        String[] tsps = { "TSP 1","TSP 2", "TSP 3","TSP 4","TSP 5","TSP 6"};
+        //String[] tsps = { "TSP 1","TSP 2", "TSP 3","TSP 4","TSP 5","TSP 6"};
         final JComboBox<String> cb = new JComboBox<String>(tsps);
         cb.setVisible(true);
         // create label for dropdown
@@ -570,7 +576,7 @@ class ButtonListenerLoadSave implements ActionListener{
     }
     private void save_tsp(){
         if (!ready_for_saving()) {
-            DialogHelper.showWarning("Please enter at least 3 towns and start the calculation");
+            DialogHelper.showWarning("Please enter at least 3 towns and start the calculation.");
             return;
         }
         // Create JFrame for save dialog

@@ -5,7 +5,7 @@
 <hibernate-configuration>
   <session-factory>
     <property name="dialect">org.hibernate.dialect.MySQL5Dialect</property>
-    <property name="connection.url">jdbc:mysql://localhost:3306/tsp_db</property>
+    <property name="connection.url">jdbc:mysql://localhost:3306/tsp_db?autoReconnect=true&amp;useSSL=false</property>
     <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
     <property name="hibernate.connection.pool_size">10</property>
     <property name="show_sql">true</property>
