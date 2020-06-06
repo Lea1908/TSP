@@ -61,8 +61,8 @@ public class TSPAlgo {
         long startTime = System.currentTimeMillis();
 
         //Berechnungsdauer in Sekunden
-        //int duration = 20;
-        int duration = 5;
+        int duration = 20;
+        //int duration = 5;
 
         //Berechnung läuft bis
         long endTime = startTime + (duration * 1000);
