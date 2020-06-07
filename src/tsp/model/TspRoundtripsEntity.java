@@ -10,6 +10,14 @@ public class TspRoundtripsEntity implements Serializable {
     private int id;
     private int tsp_id;
     private int roudtrip_id;
+    @JoinColumn(name = "roundtrip_id", unique = true)
+    @OneToOne(cascade = CascadeType.ALL)
+    private RoundtripEntity roundtrip;
+
+    @JoinColumn(name = "tsp_id", unique = true)
+    @OneToOne(cascade = CascadeType.ALL)
+    private TspEntity tsp;
+
     public TspRoundtripsEntity() {}
     public TspRoundtripsEntity(int tsp_id, int roudtrip_id) {
         setTsp_id(tsp_id);

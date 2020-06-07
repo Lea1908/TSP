@@ -8,6 +8,15 @@ import java.util.Objects;
 @Table(name = "roundtrip_cities", schema = "tsp_db", catalog = "")
 public class RoundtripCitiesEntity implements Serializable {
     private int id;
+
+    @JoinColumn(name = "roundtrip_id", unique = true)
+    @OneToOne(cascade = CascadeType.ALL)
+    private RoundtripEntity roundtrip;
+
+    @JoinColumn(name = "city_id", unique = true)
+    @OneToOne(cascade = CascadeType.ALL)
+    private CityEntity city;
+
     private int roundtripId;
     private int cityId;
 

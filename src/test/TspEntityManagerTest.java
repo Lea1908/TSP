@@ -5,8 +5,6 @@ import EntityManager.TspEntityManager;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,7 +22,7 @@ class TspEntityManagerTest {
     void create() {
         TspEntityManager tester = new TspEntityManager();
         // check if returns when name == null
-        assertNull(tester.create(null, null));
+        assertEquals(-1, tester.create(null, null));
         assertNotNull(tester.create(null, "testTSP"));
     }
 

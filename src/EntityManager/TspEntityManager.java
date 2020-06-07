@@ -1,12 +1,11 @@
 package EntityManager;
 
-import com.sun.istack.Nullable;
+import main.TSP;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import tsp.model.CityEntity;
-import tsp.model.RoundtripEntity;
 import tsp.model.TspEntity;
 import tsp.model.TspRoundtripsEntity;
 
@@ -47,8 +46,53 @@ public class TspEntityManager extends EntityManager{
         }
         return tspId;
     }
+    public TSP loadTSP(TspEntity tspEntity) {
+        if (tspEntity == null) {
+            return null;
+        }
+        Session session = factory.openSession();
+        Transaction tx = null;
+        TSP tsp = null;
+        try {
+            tx = session.beginTransaction();
+            // get all cities
+            var cityQuery = "select city from CityEntity city " +
+                    "inner join RoundtripCitiesEntity roundtripcities " +
+                    "on city.id = roundtripcities.cityId " +
+                    "inner join RoundtripEntity roundtrip " +
+                    "on roundtripcities.roundtripId = roundtrip.id " +
+                    "inner join TspRoundtripsEntity tspRoundtrip " +
+                    "on roundtrip.id = tspRoundtrip.roudtrip_id " +
+                    "where tspRoundtrip.tsp_id=" + tspEntity.getId();
+
+            /*var tspRoundtripQuery = "select roudtrip_id from TspRoundtripsEntity where tsp_id=" + tsp.getId();
+            Query query = session.createQuery(tspRoundtripQuery);
+            List<Integer> tspRoundtripsEntities = (List<Integer>) query.getResultList();
+            var roundtripQuery = "from RoundtripEntity where id IN:ids";
+            Query roundtripQ = session.createQuery(roundtripQuery);
+            roundtripQ.setParameter("id", tspRoundtripsEntities);*/
+
+            Query query = session.createQuery(cityQuery);
+            List<CityEntity> cities = (List<CityEntity>) query.list();
+            // todo add result
+
+            // todo add statistics
+            
+            tsp = new TSP(tspEntity.getName(), cities);
+            tx.commit();
+        } catch (HibernateException e) {
+            if (tx!=null) tx.rollback();
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+        return tsp;
+    }
     public Vector<String> listAllTSPNames() {
         List<TspEntity> tsps = listAllTSPs();
+        return listAllTSPNames(tsps);
+    }
+    public Vector<String> listAllTSPNames(List<TspEntity> tsps) {
         Vector<String> tspNames = new Vector<String>();
         for (TspEntity tsp : tsps) {
             tspNames.add(tsp.getName());

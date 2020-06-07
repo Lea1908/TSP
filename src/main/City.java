@@ -1,3 +1,5 @@
+package main;
+
 public class City {
 
     double x;
@@ -10,4 +12,7 @@ public class City {
         city_name = cityname;
     }
 
+    public String getCity_name() {
+        return city_name;
+    }
 }

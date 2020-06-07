@@ -1,3 +1,5 @@
+package main;
+
 import EntityManager.CityManager;
 import EntityManager.RoundtripEntityManager;
 import EntityManager.TspEntityManager;
@@ -6,7 +8,6 @@ import tsp.model.TspEntity;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class TSP extends TspEntity {
@@ -29,7 +30,12 @@ public class TSP extends TspEntity {
         this.cities = cities;
         this.subsequences = subsequences;
     }
-
+    public TSP(String name, List<CityEntity> cities, List<String> subsequences, Result result) {
+        this.setName(name);
+        this.cities = cities;
+        this.subsequences = subsequences;
+        this.tsp_result = result;
+    }
     public void setCities(List<CityEntity> cities) {
         this.cities = cities;
     }
@@ -68,13 +74,13 @@ public class TSP extends TspEntity {
         Integer endCityId = null;
         List<Integer> cityIds = new ArrayList<Integer>();
         CityManager cityManager = new CityManager();
-        // create start and end city
+        /*// create start and end city
         if (this.start_city != null) {
             startCityId = cityManager.findExistingOrCreateNewCity(this.start_city);
         }
         if (this.end_city != null) {
             endCityId = cityManager.findExistingOrCreateNewCity(this.end_city);
-        }
+        }*/
         // create tsp
         TspEntityManager tspEntityManager = new TspEntityManager();
         Integer tspId = tspEntityManager.create(getMaxDuration(), getName());
@@ -82,9 +88,13 @@ public class TSP extends TspEntity {
         if (tspId == -1) {
             return tspId;
         }
-        // create all cities or get existing ids
-        for (CityEntity city : cities) {
-            cityIds.add(cityManager.findExistingOrCreateNewCity(city));
+        var resultCities = getTsp_result().best_tour;
+
+        // create all cities or get existing ids in best order
+        for (City city : resultCities) {
+            // TODO change City to CityEntity in whole Application
+            CityEntity cityEntity = new CityEntity(city.city_name, city.x, city.y);
+            cityIds.add(cityManager.findExistingOrCreateNewCity(cityEntity));
         }
 
         // TODO create subsequences
@@ -92,8 +102,11 @@ public class TSP extends TspEntity {
         // create roundtrip
         RoundtripEntityManager roundtripEntityManager = new RoundtripEntityManager();
         java.sql.Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+
+        // save cities in roundTripCity table in best order
         Integer roundtripEntityId = roundtripEntityManager.create(timestamp, getName() + "_run", tsp_result.getOpt_tour_len(), tspId, cityIds);
         tspEntityManager.createTspRoundtrip(tspId, roundtripEntityId);
+
         return tspId;
     }
 

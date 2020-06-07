@@ -1,7 +1,9 @@
-import EntityManager.CityManager;
 import EntityManager.TspEntityManager;
+import main.City;
+import main.Result;
+import main.TSP;
+import main.TSPAlgo;
 import tsp.model.CityEntity;
-import tsp.model.TspEntity;
 
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
@@ -10,10 +12,10 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Arrays;
-import java.util.Vector;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
 
 public class AppLayout extends JFrame{//inheriting JFrame
     // Initialize Town input field
@@ -532,14 +534,15 @@ class ButtonListenerLoadSave implements ActionListener{
         // Create JFrame for load dialog
         JFrame loadFrame = DialogHelper.createFrame(600, 600, "Load TSP");
 
+        // maybe create tspEntityManager when AppLayout is created to reduce waiting time
         TspEntityManager tspEntityManager = new TspEntityManager();
-        Vector<String> tsps = tspEntityManager.listAllTSPNames();
+                var tspEntities = tspEntityManager.listAllTSPs();
+        Vector<String> tsps = tspEntityManager.listAllTSPNames(tspEntities);
         if (tsps.isEmpty()) {
             DialogHelper.showWarning("No TSPs found.");
             return;
         }
         // create dropdown menu
-        //String[] tsps = { "TSP 1","TSP 2", "TSP 3","TSP 4","TSP 5","TSP 6"};
         final JComboBox<String> cb = new JComboBox<String>(tsps);
         cb.setVisible(true);
         // create label for dropdown
@@ -557,7 +560,10 @@ class ButtonListenerLoadSave implements ActionListener{
                 loadFrame.setVisible(false);
                 Integer index = cb.getSelectedIndex();
                 // TODO load values from db with index
-
+                var selectedTSP = tspEntities.get(index);
+                var loadedTsp = tspEntityManager.loadTSP(selectedTSP);
+                AppLayout.tsp = loadedTsp;
+                // todo refresh view
                 loadFrame.dispose();
             }
         });
@@ -635,7 +641,7 @@ class ButtonListenerCalculate implements ActionListener{
             result_print = list;
         }
         private Boolean ready_for_calculation() {
-            if (AppLayout.tsp == null || AppLayout.tsp.cities == null || AppLayout.tsp.cities.size() < 3) {
+            if (AppLayout.tsp == null || AppLayout.tsp.getCities() == null || AppLayout.tsp.getCities().size() <= 3) {
                 return false;
             }
             return true;
@@ -671,11 +677,11 @@ class ButtonListenerCalculate implements ActionListener{
             Result result = TSPAlgo.call_tsp(cities);
             solutions.addItem("Solution 1");
             Vector solution_print = new Vector();
-            solution_print.add("The optimal length of your tour is: ".concat(String.valueOf(result.opt_tour_len)));
+            solution_print.add("The optimal length of your tour is: ".concat(String.valueOf(result.getOpt_tour_len())));
             solution_print.add("Visit the towns in the following order: ");
-            for(Object obj : result.best_tour){
+            for(Object obj : result.getBest_tour()){
                 City city = (City) obj;
-                solution_print.add(city.city_name);
+                solution_print.add(city.getCity_name());
             }
             result_print.setListData(solution_print);
 

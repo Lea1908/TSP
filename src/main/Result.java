@@ -1,3 +1,5 @@
+package main;
+
 public class Result {
     City[] best_tour;
     double opt_tour_len;
