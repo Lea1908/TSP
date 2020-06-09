@@ -1,23 +1,25 @@
 package main;
 
+import tsp.model.CityEntity;
+
 public class TSPAlgo {
     public static void main(String[] args) {
         System.out.println("TSP easy solved.");
 
         ////////////TESTSTAEDTE, WIRD DURCH INPUT ERSETZT////////////
 
-        City city0 = new City(576,4, "Graz");
-        City city1 = new City(594,432, "Wien");
-        City city2 = new City(598, 9, "Salzburg");
-        City city3 = new City(46, 777, "Innsbruck");
-        City city4 = new City(181, 253, "Klagenfurt");
-        City city5 = new City(35, 596, "Bregenz");
-        City city6 = new City(817, 66, "St. Pölten");
-        City city7 = new City(434, 746, "Eisenstadt");
-        City city8 = new City(152, 989, "Linz");
+        CityEntity city0 = new CityEntity(576,4, "Graz");
+        CityEntity city1 = new CityEntity(594,432, "Wien");
+        CityEntity city2 = new CityEntity(598, 9, "Salzburg");
+        CityEntity city3 = new CityEntity(46, 777, "Innsbruck");
+        CityEntity city4 = new CityEntity(181, 253, "Klagenfurt");
+        CityEntity city5 = new CityEntity(35, 596, "Bregenz");
+        CityEntity city6 = new CityEntity(817, 66, "St. Pölten");
+        CityEntity city7 = new CityEntity(434, 746, "Eisenstadt");
+        CityEntity city8 = new CityEntity(152, 989, "Linz");
         int cities_length = 9;
 
-        City[] cities = new City[cities_length];
+        CityEntity[] cities = new CityEntity[cities_length];
 
         cities[0] = city0;
         cities[1] = city1;
@@ -37,7 +39,7 @@ public class TSPAlgo {
         call_tsp(cities);
     }
 
-    static public Result call_tsp(City[] cities){
+    static public Result call_tsp(CityEntity[] cities){
         //Erstes TSP-Objekt wird erstellt
         TspRun firstrun = new TspRun(cities);
 
@@ -51,7 +53,7 @@ public class TSPAlgo {
         //citylength
         int cities_length = cities.length;
         //Zwischenergebnis der Anordnung der Staedte des bisher besten Ergebnisses
-        City[] best_route = new City[cities_length];
+        CityEntity[] best_route = new CityEntity[cities_length];
 
 
         //Erster Durchgang, Funktion wird aufgerufen und Distanz berechnet, Array unverändert

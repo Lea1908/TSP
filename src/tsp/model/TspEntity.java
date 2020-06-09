@@ -8,7 +8,7 @@ import java.util.Objects;
 @Table(name = "tsp", schema = "tsp_db", catalog = "")
 public class TspEntity implements Serializable {
     private int id;
-    private Double maxDuration = null;
+    private Double maxDuration = 20.0;
     private String name;
 
     @Id

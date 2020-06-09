@@ -12,6 +12,11 @@ public class CityEntity {
     private double yCoordinate;
     private String name;
     public CityEntity() { }
+    public CityEntity(double xCoordinate, double yCoordinate, String name) {
+        setName(name);
+        setxCoordinate(xCoordinate);
+        setyCoordinate(yCoordinate);
+    }
     public CityEntity(String name, double xCoordinate, double yCoordinate) {
         setName(name);
         setxCoordinate(xCoordinate);

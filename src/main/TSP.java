@@ -91,10 +91,8 @@ public class TSP extends TspEntity {
         var resultCities = getTsp_result().best_tour;
 
         // create all cities or get existing ids in best order
-        for (City city : resultCities) {
-            // TODO change City to CityEntity in whole Application
-            CityEntity cityEntity = new CityEntity(city.city_name, city.x, city.y);
-            cityIds.add(cityManager.findExistingOrCreateNewCity(cityEntity));
+        for (CityEntity city : resultCities) {
+            cityIds.add(cityManager.findExistingOrCreateNewCity(city));
         }
 
         // TODO create subsequences

@@ -1,5 +1,4 @@
 import EntityManager.TspEntityManager;
-import main.City;
 import main.Result;
 import main.TSP;
 import main.TSPAlgo;
@@ -559,10 +558,10 @@ class ButtonListenerLoadSave implements ActionListener{
             public void actionPerformed(ActionEvent arg0) {
                 loadFrame.setVisible(false);
                 Integer index = cb.getSelectedIndex();
-                // TODO load values from db with index
                 var selectedTSP = tspEntities.get(index);
                 var loadedTsp = tspEntityManager.loadTSP(selectedTSP);
                 AppLayout.tsp = loadedTsp;
+
                 // todo refresh view
                 loadFrame.dispose();
             }
@@ -661,7 +660,7 @@ class ButtonListenerCalculate implements ActionListener{
             // TODO implement the calculation
             DefaultTableModel model = (DefaultTableModel) input_table.getModel();
             Vector data_vec = model.getDataVector();
-            City[] cities = new City[data_vec.size()];
+            CityEntity[] cities = new CityEntity[data_vec.size()];
             int i = 0;
             for(Object obj : data_vec){
                 Vector vec = (Vector) obj;
@@ -670,7 +669,7 @@ class ButtonListenerCalculate implements ActionListener{
                 Double x = Double.parseDouble((String)vec.get(1));
                 Double y = Double.parseDouble((String)(vec.get(2)));
 
-                cities[i] = new City(x, y, town);
+                cities[i] = new CityEntity(x, y, town);
                 i++;
             }
 
@@ -680,8 +679,8 @@ class ButtonListenerCalculate implements ActionListener{
             solution_print.add("The optimal length of your tour is: ".concat(String.valueOf(result.getOpt_tour_len())));
             solution_print.add("Visit the towns in the following order: ");
             for(Object obj : result.getBest_tour()){
-                City city = (City) obj;
-                solution_print.add(city.getCity_name());
+                CityEntity city = (CityEntity) obj;
+                solution_print.add(city.getName());
             }
             result_print.setListData(solution_print);
 

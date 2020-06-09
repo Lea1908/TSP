@@ -1,11 +1,13 @@
 package EntityManager;
 
+import main.Result;
 import main.TSP;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import tsp.model.CityEntity;
+import tsp.model.RoundtripEntity;
 import tsp.model.TspEntity;
 import tsp.model.TspRoundtripsEntity;
 
@@ -55,6 +57,7 @@ public class TspEntityManager extends EntityManager{
         TSP tsp = null;
         try {
             tx = session.beginTransaction();
+
             // get all cities
             var cityQuery = "select city from CityEntity city " +
                     "inner join RoundtripCitiesEntity roundtripcities " +
@@ -64,21 +67,25 @@ public class TspEntityManager extends EntityManager{
                     "inner join TspRoundtripsEntity tspRoundtrip " +
                     "on roundtrip.id = tspRoundtrip.roudtrip_id " +
                     "where tspRoundtrip.tsp_id=" + tspEntity.getId();
-
-            /*var tspRoundtripQuery = "select roudtrip_id from TspRoundtripsEntity where tsp_id=" + tsp.getId();
-            Query query = session.createQuery(tspRoundtripQuery);
-            List<Integer> tspRoundtripsEntities = (List<Integer>) query.getResultList();
-            var roundtripQuery = "from RoundtripEntity where id IN:ids";
-            Query roundtripQ = session.createQuery(roundtripQuery);
-            roundtripQ.setParameter("id", tspRoundtripsEntities);*/
-
             Query query = session.createQuery(cityQuery);
-            List<CityEntity> cities = (List<CityEntity>) query.list();
-            // todo add result
+            var cities = (List<CityEntity>) query.list();
+
+            // get roundtrip
+            var tspRoundtripQuery = "select roundtrip from RoundtripEntity roundtrip " +
+                    "inner join TspRoundtripsEntity tspRoundtripsEntity " +
+                    "on roundtrip.id = tspRoundtripsEntity.roudtrip_id " +
+                    "where tspRoundtripsEntity.tsp_id=" + tspEntity.getId();
+            query = session.createQuery(tspRoundtripQuery);
+            RoundtripEntity roundtrip = (RoundtripEntity) query.uniqueResult();
+            CityEntity[] cityEntities = new CityEntity[cities.size()];
+            cities.toArray(cityEntities);
+
+            // create result
+            var result = new Result(cityEntities, roundtrip.getDistance());
 
             // todo add statistics
             
-            tsp = new TSP(tspEntity.getName(), cities);
+            tsp = new TSP(tspEntity.getName(), cities, null, result);
             tx.commit();
         } catch (HibernateException e) {
             if (tx!=null) tx.rollback();
