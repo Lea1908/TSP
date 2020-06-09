@@ -36,10 +36,10 @@ public class TSPAlgo {
 
 
 
-        call_tsp(cities);
+        //call_tsp(cities);
     }
 
-    static public Result call_tsp(CityEntity[] cities){
+    static public Result call_tsp(CityEntity[][] cities, Boolean is_start_city_chosen, Boolean is_end_city_chosen){
         //Erstes TSP-Objekt wird erstellt
         TspRun firstrun = new TspRun(cities);
 
@@ -51,13 +51,14 @@ public class TSPAlgo {
         //Laufvariable, welcher Durchgang das bisher beste Ergebnis gefunden hat
         long best_run = 0;
         //citylength
-        int cities_length = cities.length;
+        int cities_length = firstrun.cities.length;
         //Zwischenergebnis der Anordnung der Staedte des bisher besten Ergebnisses
-        CityEntity[] best_route = new CityEntity[cities_length];
+        //City[] best_route = new City[cities_length];
+        CityEntity[] best_route = firstrun.cities;
 
 
         //Erster Durchgang, Funktion wird aufgerufen und Distanz berechnet, Array unverändert
-        sum = firstrun.calcDistanceSum(cities);
+        sum = firstrun.calcDistanceSum();
         optimum = sum;
 
         //Berechnung läuft von
@@ -65,6 +66,7 @@ public class TSPAlgo {
 
         //Berechnungsdauer in Sekunden
         int duration = 20;
+        //int duration = 5;
 
         //Berechnung läuft bis
         long endTime = startTime + (duration * 1000);
@@ -74,9 +76,9 @@ public class TSPAlgo {
 
         while(System.currentTimeMillis() < endTime)
         {
-            firstrun.shuffleArray(cities);
-            sum = firstrun.calcDistanceSum(cities);
-            System.out.println("Durchgang Nummer " + i + ": " + sum);
+            firstrun.shuffleArray(is_start_city_chosen, is_end_city_chosen);
+            sum = firstrun.calcDistanceSum();
+            //System.out.println("Durchgang Nummer " + i + ": " + sum);
             i++;
             if(sum < optimum)
             {
@@ -84,7 +86,7 @@ public class TSPAlgo {
                 best_run = i;
                 for (int k = 0; k < cities_length; k++)
                 {
-                    best_route[k] = cities[k];
+                    best_route[k] = firstrun.cities[k];
                 }
             }
 
@@ -98,6 +100,10 @@ public class TSPAlgo {
         //{
             //System.out.println(best_route[j].city_name);
         //}
+
+
+
+
         Result result = new Result(best_route, optimum);
         return result;
 

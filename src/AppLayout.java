@@ -11,10 +11,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
+import java.util.*;
 
 public class AppLayout extends JFrame{//inheriting JFrame
     // Initialize Town input field
@@ -201,7 +199,8 @@ public class AppLayout extends JFrame{//inheriting JFrame
         save.addActionListener(new ButtonListenerLoadSave());
 
         // Add listener for calculate TSP and clear TSP
-        start_clac.addActionListener(new ButtonListenerCalculate(input_table, solutions, result_print));
+        start_clac.addActionListener(new ButtonListenerCalculate(input_table, solutions, result_print, subseq_table,
+                start_town, end_town));
         clear_tsp.addActionListener(new ButtonListenerClear(input_table, subseq_table, solutions, result_print,
                 town_textfield, x_textfield, y_textfield, start_town, end_town, delete_subseq, delete_town));
 
@@ -634,13 +633,24 @@ class ButtonListenerCalculate implements ActionListener{
     JTable input_table;
     JComboBox solutions;
     JList result_print;
-    ButtonListenerCalculate(JTable table, JComboBox dropdown, JList list){
+    JTable subseq_table;
+    JComboBox start_city;
+    JComboBox end_city;
+    int start_city_subseq_index;
+    int end_city_subseq_index;
+
+    ButtonListenerCalculate(JTable table, JComboBox dropdown, JList list, JTable table2, JComboBox dropdown2, JComboBox dropdown3){
             input_table = table;
             solutions = dropdown;
             result_print = list;
+            subseq_table = table2;
+            start_city = dropdown2;
+            end_city = dropdown3;
+            start_city_subseq_index = -1;
+            end_city_subseq_index = -1;
         }
         private Boolean ready_for_calculation() {
-            if (AppLayout.tsp == null || AppLayout.tsp.getCities() == null || AppLayout.tsp.getCities().size() <= 3) {
+            if (AppLayout.tsp == null || AppLayout.tsp.getCities() == null || AppLayout.tsp.getCities().size() <= 2) {
                 return false;
             }
             return true;
@@ -656,24 +666,184 @@ class ButtonListenerCalculate implements ActionListener{
         }
         }
 
-        private void calculate(){
-            // TODO implement the calculation
-            DefaultTableModel model = (DefaultTableModel) input_table.getModel();
-            Vector data_vec = model.getDataVector();
+        private Map<String, CityEntity> get_city_dict(Vector data_vec){
+            Map<String, CityEntity> city_dict = new HashMap<String, CityEntity>();
             CityEntity[] cities = new CityEntity[data_vec.size()];
-            int i = 0;
             for(Object obj : data_vec){
+                // Get the data to fill the dictionary.
                 Vector vec = (Vector) obj;
                 String town = (String)vec.get(0);
                 // TODO The user could enter x or y that is not a number... -> Error
                 Double x = Double.parseDouble((String)vec.get(1));
                 Double y = Double.parseDouble((String)(vec.get(2)));
 
-                cities[i] = new CityEntity(x, y, town);
-                i++;
+                city_dict.put(town, new CityEntity(x, y, town));
             }
 
-            Result result = TSPAlgo.call_tsp(cities);
+            return city_dict;
+        }
+
+        private CityEntity[][] get_array_of_subseq(int number_of_subseq, int number_of_cities, DefaultTableModel model_sub,
+                                             Map<String, CityEntity> city_dict, CityEntity start, CityEntity end){
+            CityEntity[][] subseq_city_arrays = new CityEntity[number_of_subseq][];
+            for(int column=0; column < number_of_subseq; column++){
+                // We need to use this help vector here bevause we don't know how many cities are contained in the current subseq..
+                Vector help = new Vector();
+                int row = 0;
+                while (model_sub.getValueAt(row, column) != null && model_sub.getValueAt(row, column) != ""
+                        && row < number_of_cities)
+                {
+                    // Get the corresponding City object and add it to help vector.
+                    CityEntity city = city_dict.get(model_sub.getValueAt(row, column));
+                    if (city != null){
+                        help.add(city);
+                        city_dict.remove(city.getName(), city);
+                    }
+                    else{
+                        //TODO implement warning & break/return
+                        System.out.println("a city as been chosen in two different subseq.");
+                    }
+
+                    row++;
+                }
+
+                if(help.size() != 0 && help.get(0) == start){
+                    start_city_subseq_index = column;
+                }
+                if(help.size() != 0 && help.get(help.size() - 1) == end){
+                    end_city_subseq_index = column;
+                }
+
+                // TODO we need to check if start and end city and the subseq are working together
+
+                // Restore the help vctor as City array object.
+                CityEntity [] subseq = new CityEntity[help.size()];
+                for(int r=0; r < help.size(); r++){
+                    subseq[r] = (CityEntity) help.get(r);
+                }
+
+                // Store the subseq array for later.
+                subseq_city_arrays[column] = subseq;
+            }
+            return subseq_city_arrays;
+        }
+
+        private CityEntity[][] get_city_input(Boolean is_start_city_chosen, Boolean is_end_city_chosen){
+            DefaultTableModel model = (DefaultTableModel) input_table.getModel();
+            Vector data_vec = model.getDataVector();
+            int number_of_cities = data_vec.size();
+
+            // Get the subseq table model
+            DefaultTableModel model_sub = (DefaultTableModel) subseq_table.getModel();
+            // Count how many subseq the user has defined
+            int number_of_subseq = model_sub.getColumnCount();
+
+            // Create a dictionary where the keys are the city names and the values are the corresponding City objects.
+            Map<String, CityEntity> city_dict = get_city_dict(data_vec);
+
+            CityEntity start = new CityEntity(-1., -1., " ");
+            CityEntity end = new CityEntity(-1., -1., " ");
+            if(is_start_city_chosen) {
+                start = city_dict.get((String) start_city.getSelectedItem());
+            }
+            if(is_end_city_chosen) {
+                end = city_dict.get((String) end_city.getSelectedItem());
+            }
+
+
+            // Create a CityEntity array that contains City arrays where each contains one of the defined subsequences.
+            CityEntity[][] array_of_subseq = get_array_of_subseq(number_of_subseq, number_of_cities, model_sub, city_dict, start, end);
+
+            // Construct the input for the TSP algorithm which is combination of the subsequences defined above and
+            // the cities that are not contained in any subseq..
+            CityEntity[][] cities_input = new CityEntity[number_of_subseq + city_dict.size()][];
+            int index = 0;
+            // Classical TSP input with subseq..
+            if(!is_start_city_chosen && !is_end_city_chosen){
+                // Add all single cities.
+                for(CityEntity city : city_dict.values()){
+                    CityEntity[] subseq = new CityEntity[1];
+                    subseq[0] = city;
+                    cities_input[index] = subseq;
+                    index++;
+                }
+                // Add all city-subseq..
+                for(int i_th=0; i_th < array_of_subseq.length; i_th++){
+                    CityEntity[] i_th_subseq = array_of_subseq[i_th];
+                    cities_input[index] = i_th_subseq;
+                    index++;
+                }
+            }
+            // TSP input with defined start and end city..
+            else {
+                if(is_start_city_chosen) {
+                    index = 1;
+                    // Add the start city.
+                    if (start_city_subseq_index == -1) {
+                        CityEntity[] start_subseq = new CityEntity[1];
+                        start_subseq[0] = start;
+                        cities_input[0] = start_subseq;
+                    } else {
+                        cities_input[0] = array_of_subseq[start_city_subseq_index];
+                    }
+                }
+
+                if(is_end_city_chosen) {
+                    // Add the end city.
+                    if (end_city_subseq_index == -1) {
+                        CityEntity[] end_subseq = new CityEntity[1];
+                        end_subseq[0] = end;
+                        cities_input[number_of_subseq + city_dict.size() - 1] = end_subseq;
+                    } else {
+                        cities_input[number_of_subseq + city_dict.size() - 1] = array_of_subseq[end_city_subseq_index];
+                    }
+                }
+
+                // Add all single cities.
+                for(CityEntity city : city_dict.values()){
+                    if(city != start && city != end){
+                        CityEntity[] subseq = new CityEntity[1];
+                        subseq[0] = city;
+                        cities_input[index] = subseq;
+                        index++;
+                    }
+                }
+
+                // Add all city-subseq..
+                for(int i_th=0; i_th < array_of_subseq.length; i_th++){
+                    if(i_th != start_city_subseq_index && i_th != end_city_subseq_index) {
+                        CityEntity[] i_th_subseq = array_of_subseq[i_th];
+                        cities_input[index] = i_th_subseq;
+                        index++;
+                    }
+                }
+
+            }
+
+            return cities_input;
+        }
+
+        private void calculate(){
+            Boolean is_start_city_chosen = false;
+            Boolean is_end_city_chosen = false;
+
+            if(start_city.getSelectedItem() != start_city.getItemAt(0)){
+                is_start_city_chosen = true;
+            }
+            if(end_city.getSelectedItem() != end_city.getItemAt(0)){
+                is_end_city_chosen = true;
+            }
+
+            CityEntity[][] cities_input = get_city_input(is_start_city_chosen, is_end_city_chosen);
+
+            System.out.println("Start" + start_city.getSelectedItem());
+            System.out.println("End" + end_city.getSelectedItem());
+
+
+            // Call the algo..
+            Result result = TSPAlgo.call_tsp(cities_input, is_start_city_chosen, is_end_city_chosen);
+
+            // Prepare the solution for the user...
             solutions.addItem("Solution 1");
             Vector solution_print = new Vector();
             solution_print.add("The optimal length of your tour is: ".concat(String.valueOf(result.getOpt_tour_len())));
