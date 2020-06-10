@@ -39,7 +39,7 @@ public class TSPAlgo {
         //call_tsp(cities);
     }
 
-    static public Result call_tsp(CityEntity[][] cities, Boolean is_start_city_chosen, Boolean is_end_city_chosen){
+    static public Result call_tsp(CityEntity[][] cities, Boolean is_start_city_chosen, Boolean is_end_city_chosen, Integer demandedDuration){
         //Erstes TSP-Objekt wird erstellt
         TspRun firstrun = new TspRun(cities);
 
@@ -65,7 +65,7 @@ public class TSPAlgo {
         long startTime = System.currentTimeMillis();
 
         //Berechnungsdauer in Sekunden
-        int duration = 20;
+        int duration = demandedDuration != null ? demandedDuration : 20;
         //int duration = 5;
 
         //Berechnung läuft bis

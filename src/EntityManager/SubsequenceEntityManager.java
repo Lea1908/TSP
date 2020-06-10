@@ -3,16 +3,14 @@ package EntityManager;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import tsp.model.RoundtripEntity;
 import tsp.model.SubsequenceEntity;
+import tsp.model.SubsequenceOrderEntity;
 
-import java.sql.Timestamp;
-import java.util.Iterator;
 import java.util.List;
 
 public class SubsequenceEntityManager extends EntityManager {
     /* Method to CREATE a subsequence in the database */
-    public Integer createNewSubsequence(String cities, int tspId){
+    public Integer createNewSubsequence(List<String> cities, int tspId){
         Session session = factory.openSession();
         Transaction tx = null;
         Integer subsequenceId = null;
@@ -23,6 +21,11 @@ public class SubsequenceEntityManager extends EntityManager {
             SubsequenceEntity se = new SubsequenceEntity();
             se.setTspId(tspId);
             subsequenceId = (Integer) session.save(se);
+            for (String cityOrder : cities) {
+                SubsequenceOrderEntity so = new SubsequenceOrderEntity();
+                so.setCityOrder(cityOrder);
+                se.setTspId(tspId);
+            }
             tx.commit();
         } catch (HibernateException e) {
             if (tx!=null) tx.rollback();

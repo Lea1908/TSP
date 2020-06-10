@@ -21,6 +21,9 @@ public class AppLayout extends JFrame{//inheriting JFrame
     static JTextField x_textfield = new JTextField();
     // Initialize y input field
     static JTextField y_textfield = new JTextField();
+    // Initialize city table
+    static JTable input_table = new JTable();
+
     // Declare TSP
     static TSP tsp = new TSP();
 
@@ -50,7 +53,7 @@ public class AppLayout extends JFrame{//inheriting JFrame
         // Initialize Add to List Button
         JButton add_to_list = new JButton("Add to list");
         // Initialize Input Table
-        JTable input_table = new JTable();
+        /*JTable */input_table = new JTable();
         input_table.setModel(new InputTableModel());
 
         input_table.setShowGrid(true);
@@ -189,7 +192,6 @@ public class AppLayout extends JFrame{//inheriting JFrame
         // Add listener Input
         add_to_list.addActionListener(new ButtonListenerInput(input_table, delete_town, start_town, end_town, subseq_table));
         delete_town_button.addActionListener(new ButtonListenerInput(input_table, delete_town, start_town, end_town, subseq_table));
-
         // Add listener Subsequence
         add_new_subsequence.addActionListener(new ButtonListenerSubSeq(subseq_table, input_table, delete_subseq));
         delete_subseq_button.addActionListener(new ButtonListenerSubSeq(subseq_table, input_table, delete_subseq));
@@ -200,7 +202,7 @@ public class AppLayout extends JFrame{//inheriting JFrame
 
         // Add listener for calculate TSP and clear TSP
         start_clac.addActionListener(new ButtonListenerCalculate(input_table, solutions, result_print, subseq_table,
-                start_town, end_town));
+                start_town, end_town, max_runtime_textfield));
         clear_tsp.addActionListener(new ButtonListenerClear(input_table, subseq_table, solutions, result_print,
                 town_textfield, x_textfield, y_textfield, start_town, end_town, delete_subseq, delete_town));
 
@@ -236,6 +238,34 @@ public class AppLayout extends JFrame{//inheriting JFrame
         container.add(component);
 
 
+    }
+    static void refreshCities() {
+        // get the model of our table so that we can use our 'own' methods
+        DefaultTableModel model = (DefaultTableModel) input_table.getModel();
+        // get the current data of the table stored in a vector
+        Vector data_vec = model.getDataVector();
+        // empty current data in table
+        data_vec.clear();
+        // create a vector with the row data we would like to add to the table
+        for (CityEntity city : AppLayout.tsp.getCities()) {
+            Vector data = new Vector(Arrays.asList(new TownData(city.getName(), Double.toString(city.getxCoordinate()), Double.toString(city.getyCoordinate()))));
+            model.addRow(data);
+        }
+        // todo add cities to deleteCity dropdown
+
+        // todo add cities to startCity dropdown
+
+        // todo add cities to endCity dropdown
+    }
+    static void refreshLayout() {
+        refreshCities();
+        // todo refresh startcity container -> AppLayout.tsp.start_city
+
+        // todo refresh endcity container -> AppLayout.tsp.end_city
+
+        // todo refresh results container -> AppLayout.tsp.tsp_result
+
+        // todo refresh subsequences container (subsequences not ready yet) -> AppLayout.tsp.subsequences
     }
 
 
@@ -427,7 +457,6 @@ class ButtonListenerInput implements ActionListener{
     }
 }
 
-
 class ButtonListenerSubSeq implements ActionListener{
     JTable subseq_table;
     JTable input_table;
@@ -562,6 +591,7 @@ class ButtonListenerLoadSave implements ActionListener{
                 AppLayout.tsp = loadedTsp;
 
                 // todo refresh view
+                AppLayout.refreshLayout();
                 loadFrame.dispose();
             }
         });
@@ -637,8 +667,9 @@ class ButtonListenerCalculate implements ActionListener{
     JComboBox end_city;
     int start_city_subseq_index;
     int end_city_subseq_index;
+    JTextField max_runtime;
 
-    ButtonListenerCalculate(JTable table, JComboBox dropdown, JList list, JTable table2, JComboBox dropdown2, JComboBox dropdown3){
+    ButtonListenerCalculate(JTable table, JComboBox dropdown, JList list, JTable table2, JComboBox dropdown2, JComboBox dropdown3, JTextField max_runtime_textfield){
             input_table = table;
             solutions = dropdown;
             result_print = list;
@@ -647,6 +678,7 @@ class ButtonListenerCalculate implements ActionListener{
             end_city = dropdown3;
             start_city_subseq_index = -1;
             end_city_subseq_index = -1;
+            max_runtime = max_runtime_textfield;
         }
         private Boolean ready_for_calculation() {
             if (AppLayout.tsp == null || AppLayout.tsp.getCities() == null || AppLayout.tsp.getCities().size() < 2) {
@@ -842,9 +874,21 @@ class ButtonListenerCalculate implements ActionListener{
             System.out.println("Start" + start_city.getSelectedItem());
             System.out.println("End" + end_city.getSelectedItem());
 
+            // get max runtime
+            String runtimeString = max_runtime.getText();
+            Integer runtime = null;
+
+            if (!runtimeString.equals("")) {
+                // try to parse text to integer
+                try {
+                    runtime = Integer.parseInt(runtimeString);
+                } catch (NumberFormatException nfe) {
+                    runtime = null;
+                }
+            }
 
             // Call the algo..
-            Result result = TSPAlgo.call_tsp(cities_input, is_start_city_chosen, is_end_city_chosen);
+            Result result = TSPAlgo.call_tsp(cities_input, is_start_city_chosen, is_end_city_chosen, runtime);
 
             // Prepare the solution for the user...
             solutions.addItem("Solution 1");

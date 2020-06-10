@@ -36,13 +36,16 @@ public class TSP extends TspEntity {
         this.subsequences = subsequences;
         this.tsp_result = result;
     }
-    public TSP(String name, List<CityEntity> cities, CityEntity start_city, CityEntity end_city, List<String> subsequences, Result result) {
+    public TSP(String name, List<CityEntity> cities, CityEntity start_city, CityEntity end_city, List<String> subsequences, Result result, Double maxDuration) {
         this.setName(name);
         this.cities = cities;
         this.start_city = start_city;
         this.end_city = end_city;
         this.subsequences = subsequences;
         this.tsp_result = result;
+        if (maxDuration != null) {
+            this.setMaxDuration(maxDuration);
+        }
     }
     public void setCities(List<CityEntity> cities) {
         this.cities = cities;

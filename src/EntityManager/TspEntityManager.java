@@ -104,7 +104,7 @@ public class TspEntityManager extends EntityManager{
             // create result
             var result = new Result(cityEntities, roundtrip.getDistance());
 
-            tsp = new TSP(tspEntity.getName(), cities, startCity, endCity, null, result);
+            tsp = new TSP(tspEntity.getName(), cities, startCity, endCity, null, result, tspEntity.getMaxDuration());
             tx.commit();
         } catch (HibernateException e) {
             if (tx!=null) tx.rollback();
