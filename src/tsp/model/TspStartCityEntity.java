@@ -10,7 +10,11 @@ public class TspStartCityEntity implements Serializable {
     private int id;
     private int tsp_id;
     private int city_id;
-
+    public TspStartCityEntity() {}
+    public TspStartCityEntity(int tsp_id, int city_id) {
+        this.tsp_id = tsp_id;
+        this.city_id = city_id;
+    }
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy=GenerationType.AUTO)

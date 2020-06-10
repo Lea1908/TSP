@@ -36,12 +36,36 @@ public class TSP extends TspEntity {
         this.subsequences = subsequences;
         this.tsp_result = result;
     }
+    public TSP(String name, List<CityEntity> cities, CityEntity start_city, CityEntity end_city, List<String> subsequences, Result result) {
+        this.setName(name);
+        this.cities = cities;
+        this.start_city = start_city;
+        this.end_city = end_city;
+        this.subsequences = subsequences;
+        this.tsp_result = result;
+    }
     public void setCities(List<CityEntity> cities) {
         this.cities = cities;
     }
 
     public List<CityEntity> getCities() {
         return cities;
+    }
+
+    public CityEntity getStart_city() {
+        return start_city;
+    }
+
+    public void setStart_city(CityEntity start_city) {
+        this.start_city = start_city;
+    }
+
+    public CityEntity getEnd_city() {
+        return end_city;
+    }
+
+    public void setEnd_city(CityEntity end_city) {
+        this.end_city = end_city;
     }
 
     public void setSubsequences(List<String> subsequences) {
@@ -74,13 +98,7 @@ public class TSP extends TspEntity {
         Integer endCityId = null;
         List<Integer> cityIds = new ArrayList<Integer>();
         CityManager cityManager = new CityManager();
-        /*// create start and end city
-        if (this.start_city != null) {
-            startCityId = cityManager.findExistingOrCreateNewCity(this.start_city);
-        }
-        if (this.end_city != null) {
-            endCityId = cityManager.findExistingOrCreateNewCity(this.end_city);
-        }*/
+
         // create tsp
         TspEntityManager tspEntityManager = new TspEntityManager();
         Integer tspId = tspEntityManager.create(getMaxDuration(), getName());
@@ -94,8 +112,18 @@ public class TSP extends TspEntity {
         for (CityEntity city : resultCities) {
             cityIds.add(cityManager.findExistingOrCreateNewCity(city));
         }
+        // create start and end city
+        if (this.start_city != null) {
+            startCityId = cityManager.findExistingOrCreateNewCity(this.start_city);
+            tspEntityManager.createTspCity(startCityId, tspId, "start");
+        }
+        if (this.end_city != null) {
+            endCityId = cityManager.findExistingOrCreateNewCity(this.end_city);
+            tspEntityManager.createTspCity(endCityId, tspId, "end");
+        }
 
         // TODO create subsequences
+
 
         // create roundtrip
         RoundtripEntityManager roundtripEntityManager = new RoundtripEntityManager();

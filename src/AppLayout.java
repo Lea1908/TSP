@@ -618,7 +618,6 @@ class ButtonListenerLoadSave implements ActionListener{
                 } else {
                     //AppLayout.tsp_name = name;
                     saveFrame.dispose();
-                    // TODO dann gespeichert werden soll...
                     AppLayout.tsp.setName(name);
                     Integer tspId = AppLayout.tsp.CreateTSP();
                     // TODO warning if tsp with given name already exists in db
@@ -650,7 +649,7 @@ class ButtonListenerCalculate implements ActionListener{
             end_city_subseq_index = -1;
         }
         private Boolean ready_for_calculation() {
-            if (AppLayout.tsp == null || AppLayout.tsp.getCities() == null || AppLayout.tsp.getCities().size() <= 2) {
+            if (AppLayout.tsp == null || AppLayout.tsp.getCities() == null || AppLayout.tsp.getCities().size() < 2) {
                 return false;
             }
             return true;
@@ -745,9 +744,13 @@ class ButtonListenerCalculate implements ActionListener{
             CityEntity end = new CityEntity(-1., -1., " ");
             if(is_start_city_chosen) {
                 start = city_dict.get((String) start_city.getSelectedItem());
+                // add start city to TSP
+                AppLayout.tsp.setStart_city(start);
             }
             if(is_end_city_chosen) {
                 end = city_dict.get((String) end_city.getSelectedItem());
+                // add start/EndCity to TSP
+                AppLayout.tsp.setStart_city(end);
             }
 
 

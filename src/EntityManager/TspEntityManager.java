@@ -6,10 +6,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
-import tsp.model.CityEntity;
-import tsp.model.RoundtripEntity;
-import tsp.model.TspEntity;
-import tsp.model.TspRoundtripsEntity;
+import tsp.model.*;
 
 import java.util.List;
 import java.util.Vector;
@@ -55,6 +52,7 @@ public class TspEntityManager extends EntityManager{
         Session session = factory.openSession();
         Transaction tx = null;
         TSP tsp = null;
+        var tspId = tspEntity.getId();
         try {
             tx = session.beginTransaction();
 
@@ -66,7 +64,7 @@ public class TspEntityManager extends EntityManager{
                     "on roundtripcities.roundtripId = roundtrip.id " +
                     "inner join TspRoundtripsEntity tspRoundtrip " +
                     "on roundtrip.id = tspRoundtrip.roudtrip_id " +
-                    "where tspRoundtrip.tsp_id=" + tspEntity.getId();
+                    "where tspRoundtrip.tsp_id=" + tspId;
             Query query = session.createQuery(cityQuery);
             var cities = (List<CityEntity>) query.list();
 
@@ -74,18 +72,39 @@ public class TspEntityManager extends EntityManager{
             var tspRoundtripQuery = "select roundtrip from RoundtripEntity roundtrip " +
                     "inner join TspRoundtripsEntity tspRoundtripsEntity " +
                     "on roundtrip.id = tspRoundtripsEntity.roudtrip_id " +
-                    "where tspRoundtripsEntity.tsp_id=" + tspEntity.getId();
+                    "where tspRoundtripsEntity.tsp_id=" + tspId;
             query = session.createQuery(tspRoundtripQuery);
             RoundtripEntity roundtrip = (RoundtripEntity) query.uniqueResult();
             CityEntity[] cityEntities = new CityEntity[cities.size()];
             cities.toArray(cityEntities);
 
+            // get start & endcity
+            var startCityQuery = "select city from CityEntity city " +
+                    "inner join TspStartCityEntity tspStartCity " +
+                    "on city.id = tspStartCity.city_id " +
+                    "where tspStartCity.tsp_id=" + tspId;
+            query = session.createQuery(startCityQuery);
+            var startCity = (CityEntity) query.uniqueResult();
+            var endCityQuery ="select city from CityEntity city " +
+                    "inner join TspEndCityEntity tspEndCity " +
+                    "on city.id = tspEndCity.city_id " +
+                    "where tspEndCity.tsp_id=" + tspId;
+            query = session.createQuery(endCityQuery);
+            var endCity = (CityEntity) query.uniqueResult();
+
+            // get subsequences
+            var subsequenceQuery = "select subsequenceOrder from SubsequenceOrderEntity  subsequenceOrder " +
+                    "inner join SubsequenceEntity subsequence " +
+                    "on subsequenceOrder.subsequenceId = subsequence.id " +
+                    "where subsequence.tspId=" + tspId;
+            query = session.createQuery(subsequenceQuery);
+            List<SubsequenceOrderEntity> subsequences = (List<SubsequenceOrderEntity>) query.list();
+            // todo pass subsequences on in correct way
+
             // create result
             var result = new Result(cityEntities, roundtrip.getDistance());
 
-            // todo add statistics
-            
-            tsp = new TSP(tspEntity.getName(), cities, null, result);
+            tsp = new TSP(tspEntity.getName(), cities, startCity, endCity, null, result);
             tx.commit();
         } catch (HibernateException e) {
             if (tx!=null) tx.rollback();
@@ -167,5 +186,38 @@ public class TspEntityManager extends EntityManager{
             session.close();
         }
         return tspRoundtripId;
+    }
+
+    public Integer createTspCity(int cityId, int tspId, String type) {
+        Session session = factory.openSession();
+        Transaction tx = null;
+        Integer id = null;
+
+        try {
+            tx = session.beginTransaction();
+            if (type == "start") {
+                id = createTspStartCity(cityId, tspId, session);
+            } else {
+                id = createTspEndCity(cityId, tspId, session);
+            }
+            tx.commit();
+        } catch (HibernateException e) {
+            if (tx!=null) tx.rollback();
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+        return id;
+    }
+
+    private Integer createTspStartCity(int cityId, int tspId, Session session) {
+        TspStartCityEntity tspStartCityEntity = new TspStartCityEntity(tspId, cityId);
+        var result = (TspStartCityEntity) session.save(tspStartCityEntity);
+        return result.getId();
+    }
+    private Integer createTspEndCity(int cityId, int tspId, Session session) {
+        TspEndCityEntity tspEndCityEntity = new TspEndCityEntity(tspId, cityId);
+        var result = (TspEndCityEntity) session.save(tspEndCityEntity);
+        return result.getId();
     }
 }

@@ -2,9 +2,7 @@ package EntityManager;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 import tsp.model.CityEntity;
 
@@ -25,10 +23,16 @@ public class CityManager extends EntityManager {
             tx = session.beginTransaction();
             String queryString = "FROM CityEntity WHERE name='" + name + "'";
             Query query = session.createQuery(queryString);
-            CityEntity existingCityEntity = (CityEntity) query.uniqueResult();
-            if (existingCityEntity != null && existingCityEntity.getxCoordinate() != x  && existingCityEntity.getyCoordinate() != y) {
-                cityId = existingCityEntity.getId();
-            } else {
+            List<CityEntity> existingCityEntities = (List<CityEntity>) query.list();
+            if (existingCityEntities != null) {
+                for (CityEntity existingCityEntity : existingCityEntities) {
+                    if (existingCityEntity.getxCoordinate() == x  && existingCityEntity.getyCoordinate() == y) {
+                        cityId = existingCityEntity.getId();
+                    }
+                }
+            }
+            if (cityId == null)
+            {
                 CityEntity cityEntity = new CityEntity();
                 cityEntity.setName(name);
                 cityEntity.setxCoordinate(x);
