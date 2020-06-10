@@ -140,10 +140,14 @@ public class AppLayout extends JFrame{//inheriting JFrame
 
         // Initialize local statistic header
         JLabel local_statistic = new JLabel("Local statistic");
+        // Initialize open statistics button
+        JButton local_statistic_button = new JButton("Open local statistics");
         local_statistic.setFont(new Font("Serif", Font.BOLD, 18));
 
         // Initialize global statistic header
         JLabel global_statistic = new JLabel("Global statistics");
+        // Initialize open statistics
+        JButton global_statistic_button = new JButton("Open global statistics");
         global_statistic.setFont(new Font("Serif", Font.BOLD, 18));
 
 
@@ -186,8 +190,10 @@ public class AppLayout extends JFrame{//inheriting JFrame
         addComponent(container, grid_bag_layout, solutions,             6, 1, 6, 1, 6., 0.0);
         addComponent(container, grid_bag_layout, scroll_result_print,   6, 2, 6, 4, 6., 0.0);
 
-        addComponent(container, grid_bag_layout, local_statistic,       6, 6, 6, 1, 6., 0.0);
-        addComponent(container, grid_bag_layout, global_statistic,      6, 11, 6, 1, 6., 0.0);
+        //addComponent(container, grid_bag_layout, local_statistic,       6, 6, 6, 1, 6., 0.0);
+        addComponent(container, grid_bag_layout, local_statistic_button, 6, 6, 3, 1, 6., 0.0);
+        //addComponent(container, grid_bag_layout, global_statistic,      6, 11, 6, 1, 6., 0.0);
+        addComponent(container, grid_bag_layout, global_statistic_button,      6, 11, 3, 1, 6., 0.0);
 
         // Add listener Input
         add_to_list.addActionListener(new ButtonListenerInput(input_table, delete_town, start_town, end_town, subseq_table));
@@ -199,6 +205,10 @@ public class AppLayout extends JFrame{//inheriting JFrame
         // Add listener for Load TSP and Save TSP
         load_tsp.addActionListener(new ButtonListenerLoadSave());
         save.addActionListener(new ButtonListenerLoadSave());
+
+        // Add listener for local and global statistics
+        local_statistic_button.addActionListener(new ButtonListenerOpenStatistics());
+        global_statistic_button.addActionListener(new ButtonListenerOpenStatistics());
 
         // Add listener for calculate TSP and clear TSP
         start_clac.addActionListener(new ButtonListenerCalculate(input_table, solutions, result_print, subseq_table,
@@ -456,7 +466,36 @@ class ButtonListenerInput implements ActionListener{
 
     }
 }
+class ButtonListenerOpenStatistics implements ActionListener {
+    public void actionPerformed(ActionEvent e){
+        String command = e.getActionCommand();
+        if(command.equals("Open local statistics")){
+            openLocalStatistics();
 
+        }
+        else if(command.equals("Open global statistics")){
+            // Create JFrame for global statistics dialog
+            JFrame globalStatistics = DialogHelper.createFrame(600, 600, "Global statistics");
+            // todo add global statistics
+
+            DialogHelper.displayFrameInCenter(globalStatistics);
+        }
+    }
+    public void openLocalStatistics() {
+        // Create JFrame for local statistics dialog
+        JFrame localStatistics = DialogHelper.createFrame(600, 600, "Local statistics");
+        // todo add local statistics
+
+        DialogHelper.displayFrameInCenter(localStatistics);
+    }
+    public void openGlobalStatistics() {
+        // Create JFrame for global statistics dialog
+        JFrame globalStatistics = DialogHelper.createFrame(600, 600, "Global statistics");
+        // todo add global statistics
+
+        DialogHelper.displayFrameInCenter(globalStatistics);
+    }
+}
 class ButtonListenerSubSeq implements ActionListener{
     JTable subseq_table;
     JTable input_table;
