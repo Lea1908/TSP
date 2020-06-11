@@ -1,7 +1,5 @@
 import EntityManager.TspEntityManager;
-import main.Result;
-import main.TSP;
-import main.TSPAlgo;
+import main.*;
 import tsp.model.CityEntity;
 
 import javax.swing.*;
@@ -26,6 +24,8 @@ public class AppLayout extends JFrame{//inheriting JFrame
 
     // Declare TSP
     static TSP tsp = new TSP();
+    // Create tspEntityManager for db communication
+    static TspEntityManager tspEntityManager = new TspEntityManager();
 
     // Constructor
     AppLayout(){
@@ -269,7 +269,7 @@ public class AppLayout extends JFrame{//inheriting JFrame
     }
     static void refreshLayout() {
         refreshCities();
-        // todo refresh startcity container -> AppLayout.tsp.start_city
+        // todo refresh startcity container -> AppLayout.tsp.getStart_city()
 
         // todo refresh endcity container -> AppLayout.tsp.end_city
 
@@ -471,29 +471,28 @@ class ButtonListenerOpenStatistics implements ActionListener {
         String command = e.getActionCommand();
         if(command.equals("Open local statistics")){
             openLocalStatistics();
-
         }
         else if(command.equals("Open global statistics")){
-            // Create JFrame for global statistics dialog
-            JFrame globalStatistics = DialogHelper.createFrame(600, 600, "Global statistics");
-            // todo add global statistics
-
-            DialogHelper.displayFrameInCenter(globalStatistics);
+            openGlobalStatistics();
         }
     }
     public void openLocalStatistics() {
-        // Create JFrame for local statistics dialog
-        JFrame localStatistics = DialogHelper.createFrame(600, 600, "Local statistics");
-        // todo add local statistics
-
-        DialogHelper.displayFrameInCenter(localStatistics);
+        // Get local statistics
+        List<Result> localStatistics = AppLayout.tspEntityManager.loadLocalStatisitcs(AppLayout.tsp);
+        if (localStatistics == null) {
+            // todo change warning text
+            DialogHelper.showWarning("No local statistics available yet. Please save a TSP.");
+        }
+        LocalStatisticDialog localStatisticDialog = new LocalStatisticDialog(localStatistics);
     }
     public void openGlobalStatistics() {
-        // Create JFrame for global statistics dialog
-        JFrame globalStatistics = DialogHelper.createFrame(600, 600, "Global statistics");
-        // todo add global statistics
-
-        DialogHelper.displayFrameInCenter(globalStatistics);
+        // Get global statistics
+        GlobalStatistics globalStatistics = AppLayout.tspEntityManager.loadGlobalStatisitcs();
+        if (globalStatistics == null) {
+            // todo change warning text
+            DialogHelper.showWarning("No global statistics available yet. Please save a TSP.");
+        }
+        GlobalStatisticDialog globalStatisticsDialog = new GlobalStatisticDialog(globalStatistics);
     }
 }
 class ButtonListenerSubSeq implements ActionListener{
@@ -601,9 +600,9 @@ class ButtonListenerLoadSave implements ActionListener{
         JFrame loadFrame = DialogHelper.createFrame(600, 600, "Load TSP");
 
         // maybe create tspEntityManager when AppLayout is created to reduce waiting time
-        TspEntityManager tspEntityManager = new TspEntityManager();
-                var tspEntities = tspEntityManager.listAllTSPs();
-        Vector<String> tsps = tspEntityManager.listAllTSPNames(tspEntities);
+        //var tspEntityManager = new TspEntityManager();
+                var tspEntities = AppLayout.tspEntityManager.listAllTSPs();
+        Vector<String> tsps = AppLayout.tspEntityManager.listAllTSPNames(tspEntities);
         if (tsps.isEmpty()) {
             DialogHelper.showWarning("No TSPs found.");
             return;
@@ -626,7 +625,7 @@ class ButtonListenerLoadSave implements ActionListener{
                 loadFrame.setVisible(false);
                 Integer index = cb.getSelectedIndex();
                 var selectedTSP = tspEntities.get(index);
-                var loadedTsp = tspEntityManager.loadTSP(selectedTSP);
+                var loadedTsp = AppLayout.tspEntityManager.loadTSP(selectedTSP);
                 AppLayout.tsp = loadedTsp;
 
                 // todo refresh view

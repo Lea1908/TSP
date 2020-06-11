@@ -1,5 +1,6 @@
 package EntityManager;
 
+import main.GlobalStatistics;
 import main.Result;
 import main.TSP;
 import org.hibernate.HibernateException;
@@ -8,6 +9,7 @@ import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import tsp.model.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -104,7 +106,7 @@ public class TspEntityManager extends EntityManager{
             // create result
             var result = new Result(cityEntities, roundtrip.getDistance());
 
-            tsp = new TSP(tspEntity.getName(), cities, startCity, endCity, null, result, tspEntity.getMaxDuration());
+            tsp = new TSP(tspEntity.getId(), tspEntity.getName(), cities, startCity, endCity, null, result, tspEntity.getMaxDuration());
             tx.commit();
         } catch (HibernateException e) {
             if (tx!=null) tx.rollback();
@@ -113,6 +115,64 @@ public class TspEntityManager extends EntityManager{
             session.close();
         }
         return tsp;
+    }
+
+    public List<Result> loadLocalStatisitcs(TspEntity tspEntity) {
+        Session session = factory.openSession();
+        Transaction tx = null;
+        List<Result> tspResults = new ArrayList<Result>();
+        Integer tspId = tspEntity.getId();
+        try {
+            tx = session.beginTransaction();
+            var roundTripQuery = "select roundtrip from RoundtripEntity  roundtrip " +
+                    "inner join TspRoundtripsEntity tspRoundtrip " +
+                    "on roundtrip.id = tspRoundtrip.roudtrip_id " +
+                    "where tspRoundtrip.tsp_id=" + tspId;
+            Query query = session.createQuery(roundTripQuery);
+            var roundrips = (List<RoundtripEntity>) query.getResultList();
+            for (RoundtripEntity roundrip : roundrips) {
+                var cityQuery = "select city from CityEntity city " +
+                        "inner join RoundtripCitiesEntity roundtripCity " +
+                        "on city.id = roundtripCity.cityId " +
+                        "inner join RoundtripEntity roundtrip " +
+                        "on roundtripCity.roundtripId = roundtrip.id " +
+                        "where roundtrip.id = " + roundrip.getId();
+                query = session.createQuery(cityQuery);
+                var cities = (List<CityEntity>) query.list();
+                CityEntity[] cityEntities = new CityEntity[cities.size()];
+                cities.toArray(cityEntities);
+                var result = new Result(cityEntities, roundrip.getDistance());
+                tspResults.add(result);
+            }
+            tx.commit();
+        } catch (HibernateException e) {
+            if (tx!=null) tx.rollback();
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+        return tspResults;
+    }
+    public GlobalStatistics loadGlobalStatisitcs() {
+        Session session = factory.openSession();
+        Transaction tx = null;
+        GlobalStatistics globalStatistics = null;
+        try {
+            tx = session.beginTransaction();
+            var averageCalculationTime = (Double) session.createQuery("select avg(tsp.maxDuration) from TspEntity tsp").getSingleResult();
+            var shortestCalulationTime = (Double) session.createQuery("select min(tsp.maxDuration) from TspEntity tsp").getSingleResult();
+            var longestCalculationTime = (Double) session.createQuery("select max(tsp.maxDuration) from TspEntity  tsp").getSingleResult();
+            if (averageCalculationTime != null && shortestCalulationTime != null && longestCalculationTime != null) {
+              globalStatistics = new GlobalStatistics(averageCalculationTime,shortestCalulationTime, longestCalculationTime);
+            }
+            tx.commit();
+        } catch (HibernateException e) {
+            if (tx!=null) tx.rollback();
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+        return globalStatistics;
     }
     public Vector<String> listAllTSPNames() {
         List<TspEntity> tsps = listAllTSPs();
