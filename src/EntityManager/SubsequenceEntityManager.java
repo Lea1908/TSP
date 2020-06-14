@@ -20,11 +20,14 @@ public class SubsequenceEntityManager extends EntityManager {
             tx = session.beginTransaction();
             SubsequenceEntity se = new SubsequenceEntity();
             se.setTspId(tspId);
-            subsequenceId = (Integer) session.save(se);
+            var subsequence = (SubsequenceEntity) session.save(se);
+            subsequenceId = subsequence.getId();
             for (String cityOrder : cities) {
                 SubsequenceOrderEntity so = new SubsequenceOrderEntity();
                 so.setCityOrder(cityOrder);
-                se.setTspId(tspId);
+                so.setSubsequenceId(subsequenceId);
+                var soE = (SubsequenceOrderEntity) session.save(so);
+                var soId = soE.getId();
             }
             tx.commit();
         } catch (HibernateException e) {

@@ -20,7 +20,7 @@ public class AppLayout extends JFrame{//inheriting JFrame
     // Initialize y input field
     static JTextField y_textfield = new JTextField();
     // Initialize city table
-    static JTable input_table = new JTable();
+    //static JTable input_table = new JTable();
 
     // Declare TSP
     static TSP tsp = new TSP();
@@ -53,7 +53,7 @@ public class AppLayout extends JFrame{//inheriting JFrame
         // Initialize Add to List Button
         JButton add_to_list = new JButton("Add to list");
         // Initialize Input Table
-        /*JTable */input_table = new JTable();
+        JTable input_table = new JTable();
         input_table.setModel(new InputTableModel());
 
         input_table.setShowGrid(true);
@@ -203,7 +203,8 @@ public class AppLayout extends JFrame{//inheriting JFrame
         delete_subseq_button.addActionListener(new ButtonListenerSubSeq(subseq_table, input_table, delete_subseq));
 
         // Add listener for Load TSP and Save TSP
-        load_tsp.addActionListener(new ButtonListenerLoadSave());
+        load_tsp.addActionListener(new ButtonListenerLoadSave(input_table, delete_town, start_town, end_town,
+                subseq_table, solutions, result_print, delete_subseq));
         save.addActionListener(new ButtonListenerLoadSave());
 
         // Add listener for local and global statistics
@@ -249,33 +250,88 @@ public class AppLayout extends JFrame{//inheriting JFrame
 
 
     }
-    static void refreshCities() {
+    static void refreshCities(JTable input_table, JComboBox delete_town, JComboBox start_town, JComboBox end_town) {
         // get the model of our table so that we can use our 'own' methods
         DefaultTableModel model = (DefaultTableModel) input_table.getModel();
         // get the current data of the table stored in a vector
         Vector data_vec = model.getDataVector();
         // empty current data in table
         data_vec.clear();
+
+        // remove all items from delete + start + end town
+        delete_town.removeAllItems();
+        start_town.removeAllItems();
+        end_town.removeAllItems();
+
+        // Add empty items
+        delete_town.addItem("");
+        start_town.addItem("");
+        end_town.addItem("");
+
         // create a vector with the row data we would like to add to the table
         for (CityEntity city : AppLayout.tsp.getCities()) {
-            Vector data = new Vector(Arrays.asList(new TownData(city.getName(), Double.toString(city.getxCoordinate()), Double.toString(city.getyCoordinate()))));
+            var townData = new TownData(city.getName(), Double.toString(city.getxCoordinate()), Double.toString(city.getyCoordinate()));
+            Vector data = new Vector(Arrays.asList(townData));
             model.addRow(data);
+            // add cities to deleteCity dropdown
+            delete_town.addItem(townData.name);
+            // add cities to startCity dropdown
+            start_town.addItem(townData.name);
+
+            // add cities to endCity dropdown
+            end_town.addItem(townData.name);
         }
-        // todo add cities to deleteCity dropdown
-
-        // todo add cities to startCity dropdown
-
-        // todo add cities to endCity dropdown
     }
-    static void refreshLayout() {
-        refreshCities();
-        // todo refresh startcity container -> AppLayout.tsp.getStart_city()
+    static void refreshLayout(JTable input_table, JComboBox delete_town, JComboBox start_town, JComboBox end_town,
+                              JTable subseq_table, JComboBox solutions, JList result_print, JComboBox delete_subseq) {
+        refreshCities(input_table, delete_town, start_town, end_town);
+        // todo refresh selected start city -> AppLayout.tsp.getStart_city()
+        var start_city = AppLayout.tsp.getStart_city();
+        if (start_city != null) {
+            start_town.setSelectedItem(start_city.getName());
+        }
+        // todo refresh selected end city -> AppLayout.tsp.end_city
+        var end_city = AppLayout.tsp.getEnd_city();
+        if (end_city!= null) {
+            end_town.setSelectedItem(end_city.getName());
+        }
 
-        // todo refresh endcity container -> AppLayout.tsp.end_city
+        // refresh results container -> AppLayout.tsp.tsp_result
+        // clear solutions
+        solutions.removeAllItems();
+        result_print.setModel(new DefaultListModel());
 
-        // todo refresh results container -> AppLayout.tsp.tsp_result
-
+        // Prepare the solution for the user...
+        solutions.addItem("Solution 1");
+        var result = AppLayout.tsp.getTsp_result();
+        Vector solution_print = result.createResultsPrint();
+        result_print.setListData(solution_print);
         // todo refresh subsequences container (subsequences not ready yet) -> AppLayout.tsp.subsequences
+        // clear subseq
+        subseq_table.setModel(new SubSeqTableModel());
+        // get the model of our table so that we can use our 'own' methods
+        DefaultTableModel model = (DefaultTableModel) subseq_table.getModel();
+        int column_num = 0;
+        var subsequences = AppLayout.tsp.getSubsequences();
+        if (subsequences != null) {
+            List<String> towns = new ArrayList<>(tsp.getCities().size() + 1);
+            for (CityEntity city : tsp.getCities()) {
+                towns.add(city.getName());
+            }
+            for (CityEntity[] subsequence : subsequences) {
+                String subseq_x = "Subsequence ".concat(String.valueOf(column_num + 1));
+                // add a new column for the new Subsequence
+                model.addColumn(subseq_x);
+                // add the new subsequence to the dropdown for deletion of subsequences
+                delete_subseq.addItem(subseq_x);
+                column_num++;
+            }
+            for(int i=0; i<column_num; i++){
+                ComboboxTableCellEditor editor = new ComboboxTableCellEditor(towns);
+                subseq_table.getColumnModel().getColumn(i).setCellEditor(editor);
+            }
+        }
+
     }
 
 
@@ -581,9 +637,27 @@ class ButtonListenerSubSeq implements ActionListener{
 }
 
 class ButtonListenerLoadSave implements ActionListener{
-    ButtonListenerLoadSave(){
+    JTable input_table;
+    JComboBox delete_town;
+    JComboBox start_town;
+    JComboBox end_town;
+    JTable subseq_table;
+    JComboBox solutions;
+    JList result_print;
+    JComboBox delete_subseq;
 
+    ButtonListenerLoadSave(JTable table, JComboBox dropdown1, JComboBox dropdown2, JComboBox dropdown3,
+                           JTable table2, JComboBox solutions, JList result_print, JComboBox delete_subseq){
+        input_table = table;
+        delete_town = dropdown1;
+        start_town = dropdown2;
+        end_town = dropdown3;
+        subseq_table = table2;
+        this.solutions = solutions;
+        this.result_print = result_print;
+        this.delete_subseq = delete_subseq;
     }
+    ButtonListenerLoadSave() {}
 
     public void actionPerformed(ActionEvent e){
         String command = e.getActionCommand();
@@ -629,7 +703,7 @@ class ButtonListenerLoadSave implements ActionListener{
                 AppLayout.tsp = loadedTsp;
 
                 // todo refresh view
-                AppLayout.refreshLayout();
+                AppLayout.refreshLayout(input_table, delete_town, start_town, end_town, subseq_table, solutions, result_print, delete_subseq);
                 loadFrame.dispose();
             }
         });
@@ -759,7 +833,7 @@ class ButtonListenerCalculate implements ActionListener{
                 // We need to use this help vector here bevause we don't know how many cities are contained in the current subseq..
                 Vector help = new Vector();
                 int row = 0;
-                while (model_sub.getValueAt(row, column) != null && model_sub.getValueAt(row, column) != ""
+                while (model_sub.getColumnCount() != 0 && model_sub.getRowCount() != 0 && model_sub.getValueAt(row, column) != null && model_sub.getValueAt(row, column) != ""
                         && row < number_of_cities)
                 {
                     // Get the corresponding City object and add it to help vector.
@@ -826,6 +900,7 @@ class ButtonListenerCalculate implements ActionListener{
 
             // Create a CityEntity array that contains City arrays where each contains one of the defined subsequences.
             CityEntity[][] array_of_subseq = get_array_of_subseq(number_of_subseq, number_of_cities, model_sub, city_dict, start, end);
+            AppLayout.tsp.setSubsequences(array_of_subseq);
 
             // Construct the input for the TSP algorithm which is combination of the subsequences defined above and
             // the cities that are not contained in any subseq..
@@ -930,13 +1005,8 @@ class ButtonListenerCalculate implements ActionListener{
 
             // Prepare the solution for the user...
             solutions.addItem("Solution 1");
-            Vector solution_print = new Vector();
-            solution_print.add("The optimal length of your tour is: ".concat(String.valueOf(result.getOpt_tour_len())));
-            solution_print.add("Visit the towns in the following order: ");
-            for(Object obj : result.getBest_tour()){
-                CityEntity city = (CityEntity) obj;
-                solution_print.add(city.getName());
-            }
+            result.createResultsPrint();
+            Vector solution_print = result.createResultsPrint();
             result_print.setListData(solution_print);
 
             // set result in tsp object

@@ -101,12 +101,31 @@ public class TspEntityManager extends EntityManager{
                     "where subsequence.tspId=" + tspId;
             query = session.createQuery(subsequenceQuery);
             List<SubsequenceOrderEntity> subsequences = (List<SubsequenceOrderEntity>) query.list();
+            CityEntity[][] subsequenceOrders = null;
             // todo pass subsequences on in correct way
+            if (subsequences.size() != 0) {
+                subsequenceOrders = new CityEntity[subsequences.size()][];
+                for (SubsequenceOrderEntity subsequence : subsequences) {
+                    var sCounter = 0;
+                    var cityOrder = subsequence.getCityOrder();
+                    var cityElements = cityOrder.split(",");
+                    CityEntity[] cityEntityOrder = new CityEntity[cityElements.length];
+                    int counter = 0;
+                    for (String cityElement : cityElements) {
+                        var subseqcity = findCityById(cities, Integer.parseInt(cityElement));
+                        cityEntityOrder[counter] = subseqcity;
+                        counter++;
+                    }
+                    subsequenceOrders[sCounter]= cityEntityOrder;
+                    sCounter++;
+                }
+            }
+
 
             // create result
             var result = new Result(cityEntities, roundtrip.getDistance());
 
-            tsp = new TSP(tspEntity.getId(), tspEntity.getName(), cities, startCity, endCity, null, result, tspEntity.getMaxDuration());
+            tsp = new TSP(tspEntity.getId(), tspEntity.getName(), cities, startCity, endCity, subsequenceOrders, result, tspEntity.getMaxDuration());
             tx.commit();
         } catch (HibernateException e) {
             if (tx!=null) tx.rollback();
@@ -279,5 +298,14 @@ public class TspEntityManager extends EntityManager{
         TspEndCityEntity tspEndCityEntity = new TspEndCityEntity(tspId, cityId);
         var result = (TspEndCityEntity) session.save(tspEndCityEntity);
         return result.getId();
+    }
+    public static CityEntity findCityById(List<CityEntity> cities, Integer id) {
+        if(id == null) return null;
+        for (CityEntity city : cities) {
+            if (city.getId() == id) {
+                return city;
+            }
+        }
+        return null;
     }
 }
