@@ -304,13 +304,19 @@ public class AppLayout extends JFrame{//inheriting JFrame
         // Prepare the solution for the user...
         solutions.addItem("Solution 1");
         var result = AppLayout.tsp.getTsp_result();
+        var citiesLength = AppLayout.tsp.getCities().size();
         Vector solution_print = result.createResultsPrint();
         result_print.setListData(solution_print);
         // todo refresh subsequences container (subsequences not ready yet) -> AppLayout.tsp.subsequences
         // clear subseq
         subseq_table.setModel(new SubSeqTableModel());
         // get the model of our table so that we can use our 'own' methods
-        DefaultTableModel model = (DefaultTableModel) subseq_table.getModel();
+        DefaultTableModel model_subseq = (DefaultTableModel) subseq_table.getModel();
+        model_subseq.setNumRows(citiesLength);
+
+        // reset first column
+        model_subseq.removeRow(0);
+
         int column_num = 0;
         var subsequences = AppLayout.tsp.getSubsequences();
         if (subsequences != null) {
@@ -318,17 +324,27 @@ public class AppLayout extends JFrame{//inheriting JFrame
             for (CityEntity city : tsp.getCities()) {
                 towns.add(city.getName());
             }
+
             for (CityEntity[] subsequence : subsequences) {
-                String subseq_x = "Subsequence ".concat(String.valueOf(column_num + 1));
-                // add a new column for the new Subsequence
-                model.addColumn(subseq_x);
-                // add the new subsequence to the dropdown for deletion of subsequences
-                delete_subseq.addItem(subseq_x);
-                column_num++;
-            }
-            for(int i=0; i<column_num; i++){
-                ComboboxTableCellEditor editor = new ComboboxTableCellEditor(towns);
-                subseq_table.getColumnModel().getColumn(i).setCellEditor(editor);
+                if (subsequence.length >= 2) {
+                    String subseq_x = "Subsequence ".concat(String.valueOf(column_num + 1));
+                    // add a new column for the new Subsequence
+                    model_subseq.addColumn(subseq_x);
+                    // add the new subsequence to the dropdown for deletion of subsequences
+                    delete_subseq.addItem(subseq_x);
+                    ComboboxTableCellEditor editor = new ComboboxTableCellEditor(towns);
+                    subseq_table.getColumnModel().getColumn(column_num).setCellEditor(editor);
+                    subseq_table.setRowSelectionInterval(1, 1);
+                    int cityIndex = 0;
+                    // fixme select cities in right order 
+                    /*for (CityEntity cityEntity : subsequence) {
+                        //var tablecellEditor = editor.getTableCellEditorComponent(subseq_table, cityEntity.getName(), false, cityIndex, column_num);
+                        var changedEditor = editor.setSelectedValue(subseq_table, cityEntity.getName(), false, cityIndex, column_num);
+                        cityIndex++;
+                    }*/
+
+                    column_num++;
+                }
             }
         }
 

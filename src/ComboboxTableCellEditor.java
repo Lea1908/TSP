@@ -1,10 +1,7 @@
-import javax.swing.AbstractCellEditor;
+import javax.swing.*;
 import javax.swing.table.TableCellEditor;
-import javax.swing.JComboBox;
+import java.awt.*;
 import java.util.List;
-import java.awt.Component;
-import javax.swing.JTable;
-import javax.swing.DefaultComboBoxModel;
 
 public class ComboboxTableCellEditor extends AbstractCellEditor implements TableCellEditor {
 
@@ -17,9 +14,7 @@ public class ComboboxTableCellEditor extends AbstractCellEditor implements Table
     }
 
     @Override
-    public Object getCellEditorValue() {
-        return editor.getSelectedItem();
-    }
+    public Object getCellEditorValue() { return editor.getSelectedItem();}
 
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
@@ -40,6 +35,11 @@ public class ComboboxTableCellEditor extends AbstractCellEditor implements Table
         editor.setModel(model);
         editor.setSelectedItem(value);
 
+        return editor;
+
+    }
+    public Component setSelectedValue(JTable table, Object value, boolean isSelected, int row, int column) {
+        editor.setSelectedItem(value);
         return editor;
 
     }
