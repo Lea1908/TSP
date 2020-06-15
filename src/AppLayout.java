@@ -78,7 +78,7 @@ public class AppLayout extends JFrame{//inheriting JFrame
         // Initialize maximal runtime label
         JLabel max_runtime_label = new JLabel("Max. runtime: ");
         // Initialize maximal runtime textfield
-        JTextField max_runtime_textfield = new JTextField("20");
+        JTextField max_runtime_textfield = new JTextField("20.0");
         // Initialize unit label for maximal runtime
         JLabel unit_max_runtime = new JLabel("Seconds");
         // Initialize start town dropdown menu
@@ -204,7 +204,7 @@ public class AppLayout extends JFrame{//inheriting JFrame
 
         // Add listener for Load TSP and Save TSP
         load_tsp.addActionListener(new ButtonListenerLoadSave(input_table, delete_town, start_town, end_town,
-                subseq_table, solutions, result_print, delete_subseq));
+                subseq_table, solutions, result_print, delete_subseq, max_runtime_textfield));
         save.addActionListener(new ButtonListenerLoadSave());
 
         // Add listener for local and global statistics
@@ -283,18 +283,22 @@ public class AppLayout extends JFrame{//inheriting JFrame
         }
     }
     static void refreshLayout(JTable input_table, JComboBox delete_town, JComboBox start_town, JComboBox end_town,
-                              JTable subseq_table, JComboBox solutions, JList result_print, JComboBox delete_subseq) {
+                              JTable subseq_table, JComboBox solutions, JList result_print,
+                              JComboBox delete_subseq, JTextField max_runtime_textfield) {
         refreshCities(input_table, delete_town, start_town, end_town);
-        // todo refresh selected start city -> AppLayout.tsp.getStart_city()
+        // refresh selected start city -> AppLayout.tsp.getStart_city()
         var start_city = AppLayout.tsp.getStart_city();
         if (start_city != null) {
             start_town.setSelectedItem(start_city.getName());
         }
-        // todo refresh selected end city -> AppLayout.tsp.end_city
+        // refresh selected end city -> AppLayout.tsp.end_city
         var end_city = AppLayout.tsp.getEnd_city();
         if (end_city!= null) {
             end_town.setSelectedItem(end_city.getName());
         }
+
+        // refresh max_runtime_textfield
+        max_runtime_textfield.setText(AppLayout.tsp.getMaxDuration().toString());
 
         // refresh results container -> AppLayout.tsp.tsp_result
         // clear solutions
@@ -336,7 +340,7 @@ public class AppLayout extends JFrame{//inheriting JFrame
                     subseq_table.getColumnModel().getColumn(column_num).setCellEditor(editor);
                     subseq_table.setRowSelectionInterval(1, 1);
                     int cityIndex = 0;
-                    // fixme select cities in right order 
+                    // fixme select cities in right order
                     /*for (CityEntity cityEntity : subsequence) {
                         //var tablecellEditor = editor.getTableCellEditorComponent(subseq_table, cityEntity.getName(), false, cityIndex, column_num);
                         var changedEditor = editor.setSelectedValue(subseq_table, cityEntity.getName(), false, cityIndex, column_num);
@@ -661,9 +665,10 @@ class ButtonListenerLoadSave implements ActionListener{
     JComboBox solutions;
     JList result_print;
     JComboBox delete_subseq;
+    JTextField max_runtime_textfield;
 
     ButtonListenerLoadSave(JTable table, JComboBox dropdown1, JComboBox dropdown2, JComboBox dropdown3,
-                           JTable table2, JComboBox solutions, JList result_print, JComboBox delete_subseq){
+                           JTable table2, JComboBox solutions, JList result_print, JComboBox delete_subseq, JTextField max_runtime_textfield){
         input_table = table;
         delete_town = dropdown1;
         start_town = dropdown2;
@@ -672,6 +677,7 @@ class ButtonListenerLoadSave implements ActionListener{
         this.solutions = solutions;
         this.result_print = result_print;
         this.delete_subseq = delete_subseq;
+        this.max_runtime_textfield = max_runtime_textfield;
     }
     ButtonListenerLoadSave() {}
 
@@ -719,7 +725,8 @@ class ButtonListenerLoadSave implements ActionListener{
                 AppLayout.tsp = loadedTsp;
 
                 // todo refresh view
-                AppLayout.refreshLayout(input_table, delete_town, start_town, end_town, subseq_table, solutions, result_print, delete_subseq);
+                AppLayout.refreshLayout(input_table, delete_town, start_town, end_town, subseq_table, solutions,
+                        result_print, delete_subseq, max_runtime_textfield);
                 loadFrame.dispose();
             }
         });
@@ -777,8 +784,17 @@ class ButtonListenerLoadSave implements ActionListener{
                     //AppLayout.tsp_name = name;
                     saveFrame.dispose();
                     AppLayout.tsp.setName(name);
-                    Integer tspId = AppLayout.tsp.CreateTSP();
-                    // TODO warning if tsp with given name already exists in db
+                    if (max_runtime_textfield != null) {
+                        try {
+                            var maxRuntimeString = max_runtime_textfield.getText();
+                            var maxRuntime = Double.parseDouble(maxRuntimeString);
+                            AppLayout.tsp.setMaxDuration(maxRuntime);
+                        } catch (Exception e) {
+                            DialogHelper.showWarning("Invalid value for max duration");
+                        }
+                        Integer tspId = AppLayout.tsp.CreateTSP();
+                        // TODO warning if tsp with given name already exists in db
+                    }
                 }
             }
         });
@@ -1010,7 +1026,8 @@ class ButtonListenerCalculate implements ActionListener{
             if (!runtimeString.equals("")) {
                 // try to parse text to integer
                 try {
-                    runtime = Integer.parseInt(runtimeString);
+                    var runtimeDouble = Double.parseDouble(runtimeString);
+                    runtime = (int) runtimeDouble;
                 } catch (NumberFormatException nfe) {
                     runtime = null;
                 }
@@ -1021,7 +1038,6 @@ class ButtonListenerCalculate implements ActionListener{
 
             // Prepare the solution for the user...
             solutions.addItem("Solution 1");
-            result.createResultsPrint();
             Vector solution_print = result.createResultsPrint();
             result_print.setListData(solution_print);
 
