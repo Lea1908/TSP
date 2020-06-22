@@ -16,6 +16,9 @@ public class ComboboxTableCellEditor extends AbstractCellEditor implements Table
     @Override
     public Object getCellEditorValue() { return editor.getSelectedItem();}
 
+    public void setComboBoxEditor(JComboBox editor) {
+        this.editor = editor;
+    }
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
 

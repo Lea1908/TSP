@@ -132,7 +132,7 @@ public class TSP extends TspEntity {
         }
 
         // TODO create subsequences
-        if (subsequences != null && subsequences.length != 0) {
+        if (subsequences != null) {
             SubsequenceEntityManager subsequenceEntityManager = new SubsequenceEntityManager();
             List<String> subsequenceOrders = new ArrayList<>();
             for (CityEntity[] subsequence : subsequences) {

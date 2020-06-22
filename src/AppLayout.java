@@ -205,7 +205,7 @@ public class AppLayout extends JFrame{//inheriting JFrame
         // Add listener for Load TSP and Save TSP
         load_tsp.addActionListener(new ButtonListenerLoadSave(input_table, delete_town, start_town, end_town,
                 subseq_table, solutions, result_print, delete_subseq, max_runtime_textfield));
-        save.addActionListener(new ButtonListenerLoadSave());
+        save.addActionListener(new ButtonListenerLoadSave(max_runtime_textfield));
 
         // Add listener for local and global statistics
         local_statistic_button.addActionListener(new ButtonListenerOpenStatistics());
@@ -314,6 +314,8 @@ public class AppLayout extends JFrame{//inheriting JFrame
         // todo refresh subsequences container (subsequences not ready yet) -> AppLayout.tsp.subsequences
         // clear subseq
         subseq_table.setModel(new SubSeqTableModel());
+        delete_subseq.removeAllItems();
+
         // get the model of our table so that we can use our 'own' methods
         DefaultTableModel model_subseq = (DefaultTableModel) subseq_table.getModel();
         model_subseq.setNumRows(citiesLength);
@@ -330,22 +332,22 @@ public class AppLayout extends JFrame{//inheriting JFrame
             }
 
             for (CityEntity[] subsequence : subsequences) {
+                String subseq_x = "Subsequence ".concat(String.valueOf(column_num + 1));
+                // add a new column for the new Subsequence
+                model_subseq.addColumn(subseq_x);
+                // add the new subsequence to the dropdown for deletion of subsequences
+                delete_subseq.addItem(subseq_x);
+                ComboboxTableCellEditor editor = new ComboboxTableCellEditor(towns);
+                subseq_table.getColumnModel().getColumn(column_num).setCellEditor(editor);
                 if (subsequence.length >= 2) {
-                    String subseq_x = "Subsequence ".concat(String.valueOf(column_num + 1));
-                    // add a new column for the new Subsequence
-                    model_subseq.addColumn(subseq_x);
-                    // add the new subsequence to the dropdown for deletion of subsequences
-                    delete_subseq.addItem(subseq_x);
-                    ComboboxTableCellEditor editor = new ComboboxTableCellEditor(towns);
-                    subseq_table.getColumnModel().getColumn(column_num).setCellEditor(editor);
-                    subseq_table.setRowSelectionInterval(1, 1);
                     int cityIndex = 0;
                     // fixme select cities in right order
-                    /*for (CityEntity cityEntity : subsequence) {
-                        //var tablecellEditor = editor.getTableCellEditorComponent(subseq_table, cityEntity.getName(), false, cityIndex, column_num);
-                        var changedEditor = editor.setSelectedValue(subseq_table, cityEntity.getName(), false, cityIndex, column_num);
+                    for (CityEntity cityEntity : subsequence) {
+                        var tablecellEditor = (JComboBox) editor.getTableCellEditorComponent(subseq_table, cityEntity.getName(), true, cityIndex, column_num);
+                        editor.setComboBoxEditor(tablecellEditor);
+                        //var changedEditor = editor.setSelectedValue(subseq_table, cityEntity.getName(), false, cityIndex, column_num);
                         cityIndex++;
-                    }*/
+                    }
 
                     column_num++;
                 }
@@ -679,6 +681,9 @@ class ButtonListenerLoadSave implements ActionListener{
         this.delete_subseq = delete_subseq;
         this.max_runtime_textfield = max_runtime_textfield;
     }
+    ButtonListenerLoadSave(JTextField max_runtime_textfield){
+        this.max_runtime_textfield = max_runtime_textfield;
+    }
     ButtonListenerLoadSave() {}
 
     public void actionPerformed(ActionEvent e){
@@ -792,9 +797,10 @@ class ButtonListenerLoadSave implements ActionListener{
                         } catch (Exception e) {
                             DialogHelper.showWarning("Invalid value for max duration");
                         }
+                    }
                         Integer tspId = AppLayout.tsp.CreateTSP();
                         // TODO warning if tsp with given name already exists in db
-                    }
+
                 }
             }
         });
@@ -926,7 +932,7 @@ class ButtonListenerCalculate implements ActionListener{
             if(is_end_city_chosen) {
                 end = city_dict.get((String) end_city.getSelectedItem());
                 // add start/EndCity to TSP
-                AppLayout.tsp.setStart_city(end);
+                AppLayout.tsp.setEnd_city(end);
             }
 
 

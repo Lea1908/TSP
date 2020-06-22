@@ -112,9 +112,11 @@ public class TspEntityManager extends EntityManager{
                     CityEntity[] cityEntityOrder = new CityEntity[cityElements.length];
                     int counter = 0;
                     for (String cityElement : cityElements) {
-                        var subseqcity = findCityById(cities, Integer.parseInt(cityElement));
-                        cityEntityOrder[counter] = subseqcity;
-                        counter++;
+                        if (!cityElement.equals("")) {
+                            var subseqcity = findCityById(cities, Integer.parseInt(cityElement));
+                            cityEntityOrder[counter] = subseqcity;
+                            counter++;
+                        }
                     }
                     subsequenceOrders[sCounter]= cityEntityOrder;
                     sCounter++;
